@@ -4,7 +4,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>VitaLink | Log in</title>
+  <link rel="shortcut icon" href="{% static 'dist/img/vitalinklogo.png' %}" type="image/x-icon">
+  <title>Log In | VitaLink</title>
 
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -48,6 +49,7 @@
         </div>
         <div class="row">
           <div class="col-8">
+            <a href="{% url 'dashboard' %}" class="btn btn-success">Access (debug)</a>
           </div>
           <!-- /.col -->
           <div class="col-4">
@@ -57,6 +59,7 @@
         </div>
       </form>
 
+      <br>
       <p class="mb-0">
         <a href="{% url 'register' %}" class="text-center">Register a new membership</a>
       </p>
