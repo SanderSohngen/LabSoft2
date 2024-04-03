@@ -6,6 +6,8 @@ import Evaluation from './pages/Evaluation';
 import PatientEvaluation from './pages/PatientEvaluation';
 import DietPlan from './pages/DietPlan';
 import PatientDietPlan from './pages/PatientDietPlan';
+import Appointment from './pages/Appointment';
+import PatientAppointment from './pages/PatientAppointment';
 import ErrorPage from './pages/ErrorPage';
 
 const routes = createRoutesFromElements(
@@ -16,6 +18,8 @@ const routes = createRoutesFromElements(
       <Route path="avaliacao/:name" element={<PatientEvaluation />} />
       <Route path="plano-alimentar" element={<DietPlan />} />
       <Route path="plano-alimentar/:name" element={<PatientDietPlan />} />
+      <Route path="consulta" element={<Appointment />} />
+      <Route path="consulta/:name" element={<PatientAppointment />} />
       <Route path="*" element={<ErrorPage />} />
     </Route>
 );
