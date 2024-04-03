@@ -5,7 +5,7 @@ function Evaluation() {
     return (
       <Box flex="1" p={5}>
         <Text fontSize="4xl" mb={4}>Avaliação de Paciente</Text>
-        <NameSearch />
+        <NameSearch basePath='avaliacao'/>
       </Box>
     );
 }

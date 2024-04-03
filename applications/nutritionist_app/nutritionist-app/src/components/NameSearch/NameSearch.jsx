@@ -4,7 +4,7 @@ import { Input, List, ListItem } from '@chakra-ui/react';
 
 const allNames = ['Alice', 'Bob', 'Charlie', 'David', 'Eve'];
 
-function NameSearch() {
+function NameSearch({ basePath }) {
   const [inputValue, setInputValue] = useState('');
   const [filteredNames, setFilteredNames] = useState([]);
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ function NameSearch() {
   }, [inputValue]);
 
   const handleSelectName = (name) => {
-    navigate(`/evaluation/${name}`);
+    navigate(`/${basePath}/${name}`);
   };
 
   return (
