@@ -22,61 +22,66 @@
   <div class="content">
     <div class="container">
       <div class="row">
-        <div class="col-lg-6">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-
-              <p class="card-text">
-                Some quick example text to build on the card title and make up the bulk of the card's
-                content.
-              </p>
-
-              <a href="#" class="card-link">Card link</a>
-              <a href="#" class="card-link">Another link</a>
-            </div>
+        <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">DataTable with default features</h3>
           </div>
-
-          <div class="card card-primary card-outline">
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-
-              <p class="card-text">
-                Some quick example text to build on the card title and make up the bulk of the card's
-                content.
-              </p>
-              <a href="#" class="card-link">Card link</a>
-              <a href="#" class="card-link">Another link</a>
-            </div>
-          </div><!-- /.card -->
+          <!-- /.card-header -->
+          <div class="card-body">
+            <table id="example1" class="table table-bordered table-striped">
+              <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Profissional</th>
+                <th>Agenda da Semana</th>
+                <th>Avaliação</th>
+                <th>Ação</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td>Pedro Pedro</td>
+                <td>Nutricionista
+                </td>
+                <td>Seg, Terça, Quinta</td>
+                <td>4</td>
+                <td>
+                  <div class="d-flex justify-content-center"> 
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-edit">
+                      <i class="fa-solid fa-pen-to-square"></i>
+                      Consultar agenda
+                    </button>
+                    
+                    <div class="modal fade" id="modal-edit">
+                      <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h4 class="modal-title">Agendas disponíveis</h4>
+                          </div>
+                          <div class="modal-body">
+                              Colocar informações da agenda aqui (colocar um calendário?)
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                            <button type="submit" class="btn btn-success" form="edit_form" id="edit_form">Agendar</button>
+                          </div>
+                        </div>
+                        <!-- /.modal-content -->
+                      </div>
+                      <!-- /.modal-dialog -->
+                    </div>
+                    <!-- /.modal -->
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- /.card-body -->
         </div>
-        <!-- /.col-md-6 -->
-        <div class="col-lg-6">
-          <div class="card">
-            <div class="card-header">
-              <h5 class="card-title m-0">Featured</h5>
-            </div>
-            <div class="card-body">
-              <h6 class="card-title">Special title treatment</h6>
-
-              <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-              <a href="#" class="btn btn-primary">Go somewhere</a>
-            </div>
-          </div>
-
-          <div class="card card-primary card-outline">
-            <div class="card-header">
-              <h5 class="card-title m-0">Featured</h5>
-            </div>
-            <div class="card-body">
-              <h6 class="card-title">Special title treatment</h6>
-
-              <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-              <a href="#" class="btn btn-primary">Go somewhere</a>
-            </div>
-          </div>
-        </div>
-        <!-- /.col-md-6 -->
+        <!-- /.card -->
+      </div>
+      <!-- /.col -->
       </div>
       <!-- /.row -->
     </div><!-- /.container-fluid -->

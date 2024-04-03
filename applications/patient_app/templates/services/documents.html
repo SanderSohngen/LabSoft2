@@ -8,7 +8,7 @@
     <div class="container">
       <div class="row mb-2">
         <div class="col-sm-6">
-          <h1 class="m-0"> Portal do Paciente </h1>
+          <h1 class="m-0"> Documentos </h1>
         </div><!-- /.col -->
         <div class="col-sm-6">
     
@@ -22,61 +22,165 @@
   <div class="content">
     <div class="container">
       <div class="row">
-        <div class="col-lg-6">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-
-              <p class="card-text">
-                Some quick example text to build on the card title and make up the bulk of the card's
-                content.
-              </p>
-
-              <a href="#" class="card-link">Card link</a>
-              <a href="#" class="card-link">Another link</a>
-            </div>
-          </div>
-
-          <div class="card card-primary card-outline">
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-
-              <p class="card-text">
-                Some quick example text to build on the card title and make up the bulk of the card's
-                content.
-              </p>
-              <a href="#" class="card-link">Card link</a>
-              <a href="#" class="card-link">Another link</a>
-            </div>
-          </div><!-- /.card -->
-        </div>
-        <!-- /.col-md-6 -->
-        <div class="col-lg-6">
+        <div class="col-md-6">
           <div class="card">
             <div class="card-header">
-              <h5 class="card-title m-0">Featured</h5>
+              <h3 class="card-title">Documentos Nutricionais</h3>
             </div>
+            <!-- /.card-header -->
             <div class="card-body">
-              <h6 class="card-title">Special title treatment</h6>
-
-              <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-              <a href="#" class="btn btn-primary">Go somewhere</a>
+              <!-- we are adding the accordion ID so Bootstrap's collapse plugin detects it -->
+              <div id="accordion">
+                <div class="card card-primary">
+                  <div class="card-header">
+                    <h4 class="card-title w-100">
+                      <a class="d-block w-100 collapsed" data-toggle="collapse" href="#collapseOne1" aria-expanded="false">
+                        Plano Alimentar
+                      </a>
+                    </h4>
+                  </div>
+                  <div id="collapseOne1" class="collapse" data-parent="#accordion" style="">
+                    <div class="card-body">
+                      
+                    </div>
+                  </div>
+                </div>
+                <div class="card card-success">
+                  <div class="card-header">
+                    <h4 class="card-title w-100">
+                      <a class="d-block w-100" data-toggle="collapse" href="#collapseTwo1">
+                        Suplementação
+                      </a>
+                    </h4>
+                  </div>
+                  <div id="collapseTwo1" class="collapse" data-parent="#accordion">
+                    <div class="card-body">
+                      
+                    </div>
+                  </div>
+                </div>
+                <div class="card card-success">
+                  <div class="card-header">
+                    <h4 class="card-title w-100">
+                      <a class="d-block w-100" data-toggle="collapse" href="#collapseThree1">
+                        Receitas
+                      </a>
+                    </h4>
+                  </div>
+                  <div id="collapseThree1" class="collapse" data-parent="#accordion">
+                    <div class="card-body">
+                      
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
+            <!-- /.card-body -->
           </div>
-
-          <div class="card card-primary card-outline">
-            <div class="card-header">
-              <h5 class="card-title m-0">Featured</h5>
-            </div>
-            <div class="card-body">
-              <h6 class="card-title">Special title treatment</h6>
-
-              <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-              <a href="#" class="btn btn-primary">Go somewhere</a>
-            </div>
-          </div>
+          <!-- /.card -->
         </div>
-        <!-- /.col-md-6 -->
+        <!-- row 1 col 1 -->
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Exames Médicos</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+              <!-- we are adding the accordion ID so Bootstrap's collapse plugin detects it -->
+              <div id="accordion">
+                <div class="card card-primary">
+                  <div class="card-header">
+                    <h4 class="card-title w-100">
+                      <a class="d-block w-100 collapsed" data-toggle="collapse" href="#collapseOne2" aria-expanded="false">
+                        Exame de sangue
+                      </a>
+                    </h4>
+                  </div>
+                  <div id="collapseOne2" class="collapse" data-parent="#accordion" style="">
+                    <div class="card-body">
+                      
+                          <a href="" download="filename.extension" class="btn btn-app">
+                            <i class="fas fa-download"></i> Download
+                          </a>
+                        
+                          <span> HDL, LDL, Colesterol e hemograma </span>
+                        
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- /.card-body -->
+          </div>
+          <!-- /.card -->
+        </div>
+        <!-- row 1 col 2 -->
+      </div>
+      <!-- /.row -->
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Laudos Médicos</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+              <!-- we are adding the accordion ID so Bootstrap's collapse plugin detects it -->
+              <div id="accordion">
+                <div class="card card-primary">
+                  <div class="card-header">
+                    <h4 class="card-title w-100">
+                      <a class="d-block w-100 collapsed" data-toggle="collapse" href="#collapseOne3" aria-expanded="false">
+                        Laudo #1
+                      </a>
+                    </h4>
+                  </div>
+                  <div id="collapseOne3" class="collapse" data-parent="#accordion" style="">
+                    <div class="card-body">
+                      
+                    </div>
+                  </div>
+                </div>
+                
+              </div>
+            </div>
+            <!-- /.card-body -->
+          </div>
+          <!-- /.card -->
+        </div>
+        <!-- row 2 col 1 -->
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Recomendações</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+              <!-- we are adding the accordion ID so Bootstrap's collapse plugin detects it -->
+              <div id="accordion">
+                <div class="card card-primary">
+                  <div class="card-header">
+                    <h4 class="card-title w-100">
+                      <a class="d-block w-100 collapsed" data-toggle="collapse" href="#collapseOne4" aria-expanded="false">
+                        Recomendação #1
+                      </a>
+                    </h4>
+                  </div>
+                  <div id="collapseOne4" class="collapse" data-parent="#accordion" style="">
+                    <div class="card-body">
+                      
+                    </div>
+                  </div>
+                </div>
+                
+              </div>
+            </div>
+            <!-- /.card-body -->
+          </div>
+          <!-- /.card -->
+        </div>
+        <!-- row 2 col 2 -->
       </div>
       <!-- /.row -->
     </div><!-- /.container-fluid -->

@@ -114,14 +114,7 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
 AUTH_USER_MODEL = 'patient_portal.CustomUser'
-
-# Base directory for media files
-MEDIA_ROOT = BASE_DIR / 'media'
-
-# URL to access media files
-MEDIA_URL = '/media/'
 
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"

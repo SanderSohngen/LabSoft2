@@ -22,7 +22,6 @@ class CustomUser(AbstractUser):
     weight = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, verbose_name=_('Weight (kg)'))
     height = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, verbose_name=_('Height (cm)'))
     dietary_restrictions = models.TextField(null=True, blank=True, verbose_name=_('Dietary Restrictions'))
-    profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True, verbose_name=_('Profile Picture'))
 
     # Override inherited fields to fix reverse accessor clashes
     groups = models.ManyToManyField(
