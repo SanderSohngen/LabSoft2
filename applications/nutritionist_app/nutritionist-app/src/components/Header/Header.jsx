@@ -1,7 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Flex, Tabs, TabList, Tab, Text } from '@chakra-ui/react';
-
-
 import { Link } from 'react-router-dom';
 
 function Header() {
@@ -9,19 +7,13 @@ function Header() {
     const location = useLocation();
     const currentPath = location.pathname;
 
+    const paths = ['/', '/agenda', '/avaliacao', '/plano-alimentar', '/consulta'];
+
+    const currentTabIndex = paths.findLastIndex(path => currentPath.startsWith(path));
+
     const handleTabsChange = (index) => {
-        const paths = ['/', '/agendas', '/avaliacao', '/plano-alimentar', '/consulta'];
         navigate(paths[index]);
     };
-
-    const tabIndexes = {
-        '/': 0,
-        '/agenda': 1,
-        '/avaliacao': 2,
-        '/plano-alimentar': 3,
-        '/consulta': 4,
-    };
-    const currentTabIndex = tabIndexes[currentPath] || 0;
 
     return (
         <Flex as="header" bg="customPalette.900" color="white" align="center" justify="space-between" padding="4" boxShadow="sm">
