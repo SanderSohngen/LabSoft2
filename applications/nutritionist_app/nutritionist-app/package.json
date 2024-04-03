@@ -10,9 +10,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@chakra-ui/icons": "^2.1.1",
     "@chakra-ui/react": "^2.8.2",
+    "@chatscope/chat-ui-kit-react": "^2.0.3",
+    "@chatscope/chat-ui-kit-styles": "^1.4.0",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
+    "@fullcalendar/core": "^6.1.11",
+    "@fullcalendar/daygrid": "^6.1.11",
+    "@fullcalendar/react": "^6.1.11",
+    "@fullcalendar/timegrid": "^6.1.11",
+    "@mui/x-date-pickers-pro": "^7.1.0",
     "framer-motion": "^11.0.24",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
