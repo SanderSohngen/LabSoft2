@@ -1,14 +1,27 @@
-import { useRef } from 'react';
-import { Input, FormControl, FormLabel, Box, IconButton } from '@chakra-ui/react';
+import { useRef, useState } from 'react';
+import { Input, FormControl, FormLabel, Box, IconButton, useToast } from '@chakra-ui/react';
 import { CheckIcon } from '@chakra-ui/icons';
 
 function InputEvaluation() {
     const textFieldRef = useRef(null);
+    const [isInputEmpty, setIsInputEmpty] = useState(true);
+    const toast = useToast();
+
+    const handleInputChange = (e) => {
+        setIsInputEmpty(e.target.value.trim() === '');
+    }
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log(textFieldRef.current.value);
+        toast({
+            title: 'Avaliação enviada com sucesso',
+            description: 'Avaliação atualizada para "' + textFieldRef.current.value + '"',
+            status:'success',
+            duration: 3000,
+            isClosable: true,
+        })
         textFieldRef.current.value = '';
+        setIsInputEmpty(true);
     };
 
     return (
@@ -18,6 +31,7 @@ function InputEvaluation() {
                 <Input
                     ref={textFieldRef}
                     placeholder="Digite aqui a avaliação"
+                    onChange={handleInputChange}
                 />
                 <IconButton
                     type="submit"
@@ -28,6 +42,7 @@ function InputEvaluation() {
                     fontSize='20px'
                     spinner="true"
                     icon={<CheckIcon />}
+                    isDisabled={isInputEmpty}
                 />
             </FormControl>
         </Box>

@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Input, FormControl, FormLabel, Box, IconButton } from '@chakra-ui/react';
+import { Input, FormControl, FormLabel, Box, IconButton, useToast } from '@chakra-ui/react';
 import { CheckIcon } from '@chakra-ui/icons';
 
 function FileUpload() {
     const [file, setFile] = useState(null);
     const [ inputKey, setInputKey ] = useState(Date.now());
+    const toast = useToast();
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
@@ -12,7 +13,13 @@ function FileUpload() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log("File uploaded: ", file.name);
+        toast({
+            title: 'Arquivo enviado com sucesso',
+            description: `O arquivo "${file.name}" foi enviado com sucesso.`,
+            status:'success',
+            duration: 3000,
+            isClosable: true,
+        })
         setFile(null);
         setInputKey(Date.now());
     };
@@ -37,6 +44,7 @@ function FileUpload() {
                     fontSize='20px'
                     spinner="true"
                     icon={<CheckIcon />}
+                    isDisabled={file === null}
                 />
             </FormControl>
         </Box>
