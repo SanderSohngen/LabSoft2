@@ -1,9 +1,14 @@
-import { Box } from '@chakra-ui/react';
+import { Flex, Text, VStack } from '@chakra-ui/react';
+import AvailabilityForm from '../components/AvailabilityForm/AvailabilityForm';
 
 function Home() {
     return (
-      <Box flex="1" bg="customPalette.800">
-      </Box>
+      <Flex align="center" alignItems="center" justifyContent="center">
+      <VStack spacing={4}>
+        <Text fontSize="4xl" mb={4}>Atualizar Disponibilidade</Text>
+        <AvailabilityForm />
+      </VStack>
+      </Flex>
     );
   }
 
