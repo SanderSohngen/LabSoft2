@@ -9,17 +9,20 @@ import PatientDietPlan from './pages/PatientDietPlan';
 import Appointment from './pages/Appointment';
 import PatientAppointment from './pages/PatientAppointment';
 import ErrorPage from './pages/ErrorPage';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 
 const routes = createRoutesFromElements(
     <Route element={<MainLayout />}>
       <Route path="/" element={<Home />} />
-      <Route path="agenda" element={<Schedule />} />
-      <Route path="avaliacao" element={<Evaluation />} />
-      <Route path="avaliacao/:name" element={<PatientEvaluation />} />
-      <Route path="plano-alimentar" element={<DietPlan />} />
-      <Route path="plano-alimentar/:name" element={<PatientDietPlan />} />
-      <Route path="consulta" element={<Appointment />} />
-      <Route path="consulta/:name" element={<PatientAppointment />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="agenda" element={<Schedule />} />
+        <Route path="avaliacao" element={<Evaluation />} />
+        <Route path="avaliacao/:name" element={<PatientEvaluation />} />
+        <Route path="plano-alimentar" element={<DietPlan />} />
+        <Route path="plano-alimentar/:name" element={<PatientDietPlan />} />
+        <Route path="consulta" element={<Appointment />} />
+        <Route path="consulta/:name" element={<PatientAppointment />} />
+      </Route>
       <Route path="*" element={<ErrorPage />} />
     </Route>
 );
