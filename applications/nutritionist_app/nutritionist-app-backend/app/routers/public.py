@@ -1,7 +1,9 @@
-from datetime import timedelta
+from typing import List
+from datetime import timedelta, datetime
 from fastapi import Depends, APIRouter, status, HTTPException
 
 from ..dependency import get_session
+from ..utils import generate_time_slots
 from .. import crud, schemas, models, security
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.security import OAuth2PasswordRequestForm
@@ -75,3 +77,15 @@ async def read_users(
     db: AsyncSession = Depends(get_session)
 ) -> list[models.User]:
     return await crud.get_users(db)
+
+
+@router.get(
+    "/time_slots/{user_id}",
+    response_model=List[datetime]
+)
+async def get_time_slots(
+    user_id: int,
+    db: AsyncSession = Depends(get_session)
+) -> List[datetime]:
+    time_slots = await crud.get_time_slots(user_id, db)
+    return generate_time_slots(time_slots)
