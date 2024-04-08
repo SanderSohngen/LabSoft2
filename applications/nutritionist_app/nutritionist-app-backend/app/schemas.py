@@ -1,3 +1,4 @@
+from datetime import time
 from pydantic import BaseModel, EmailStr
 
 
@@ -24,6 +25,23 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     email: EmailStr
+
+    class Config:
+        from_attributes = True
+
+
+class TimeSlotBase(BaseModel):
+    day_of_week: int
+    time: time
+    user_id: int
+
+
+class TimeSlotCreate(TimeSlotBase):
+    pass
+
+
+class TimeSlotSchema(TimeSlotBase):
+    id: int
 
     class Config:
         from_attributes = True
