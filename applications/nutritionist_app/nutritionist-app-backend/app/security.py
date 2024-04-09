@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 CREDENTIALS_EXCEPTION = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
-    detail="Could not validate credentials",
+    detail="Não foi possível validar as credenciais.",
     headers={"WWW-Authenticate": "Bearer"},
 )
 

@@ -53,7 +53,7 @@ async def get_user(
         if user is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="User not found"
+                detail="Usuário não encontrado."
             )
         return user
 
