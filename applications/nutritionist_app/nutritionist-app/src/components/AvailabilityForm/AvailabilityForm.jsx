@@ -1,77 +1,114 @@
-import { useState } from 'react';
-import {
-    Box,
-    Button,
-    Checkbox,
-    CheckboxGroup,
-    FormControl,
-    FormLabel,
-    RangeSlider,
-    RangeSliderFilledTrack,
-    RangeSliderThumb,
-    RangeSliderTrack,
-    Text,
-    useToast,
-    Stack,
-} from '@chakra-ui/react';
+import { Grid, Box, Button, useToast } from '@chakra-ui/react';
+import { useState, useEffect } from 'react';
+import { useSubmitAvailability, useFetchAvailability } from '../../hooks/useAvailability';
+import Loading from '../Loading/Loading';
 
-const daysTranslator = {
-    "Monday": "Segunda",
-    "Tuesday": "Terça",
-    "Wednesday": "Quarta",
-    "Thursday": "Quinta",
-    "Friday": "Sexta",
-  };
+const daysOfWeek = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'];
+const timeSlots = Array.from({ length: 10 }, (_, i) => `${(8 + i).toString().padStart(2, '0')}:00`);
+
 
 function AvailabilityForm() {
-    const [days, setDays] = useState([]);
-    const [hourRange, setHourRange] = useState([8, 18]);
-    const toast = useToast();
+	const [availability, setAvailability] = useState({});
+	const { data: myTimeSlots, isLoading } = useFetchAvailability();
+	const submitAvailability = useSubmitAvailability();
+	const toast = useToast();
 
-    const handleDayChange = (selectedDays) => setDays(selectedDays);
-    const translatedDays = days.map(day => daysTranslator[day]);
+	useEffect(() => {
+        if (myTimeSlots) {
+            const newAvailability = myTimeSlots.reduce((acc, slot) => {
+                const [hours, minutes] = slot.time.split(":").slice(0, 2);
+                const formattedTime = `${hours}:${minutes}`;
+                const day = daysOfWeek[slot.day_of_week];
+                acc[day] = acc[day] || [];
+                acc[day].push(formattedTime);
+                return acc;
+              }, {});
+              setAvailability(newAvailability);
+        }
+    }, [myTimeSlots]);
 
+    if (isLoading) {
+        return <Loading />;
+    }
+    
+	
+	const toggleSlot = (day, time) => {
+        const dayAvailability = availability[day] || [];
+        if (dayAvailability.includes(time)) {
+            setAvailability({
+                ...availability,
+                [day]: dayAvailability.filter(t => t !== time),
+            });
+        } else {
+            setAvailability({
+                ...availability,
+                [day]: [...dayAvailability, time],
+            });
+        }
+	};
 
-    const handleSubmit = () => {
-        toast({
-        title: "Disponibilidade atualizada",
-        description: `Sua disponibilidade de ${translatedDays.join(', ')} foi atualizada para as ${hourRange[0]}:00 às ${hourRange[1]}:00.`,
-        status: "success",
-        duration: 3000,
-        isClosable: true,
+	const handleSubmit = () => {
+        const availabilityData = daysOfWeek.flatMap((day, index) => 
+			(availability[day] || []).map(time => ({
+				day_of_week: index,
+				time
+			}))
+		);
+        console.log(availabilityData);
+		submitAvailability.mutateAsync(availabilityData, {
+			onSuccess: () => {
+				toast({
+					title: 'Disponibilidade atualizada',
+					description: 'Sua disponibilidade foi atualizada com sucesso.',
+					status: 'success',
+					duration: 3000,
+					isClosable: true,
+				});
+			},
+            onError: (error) => {
+                toast({
+                    title: 'Submissão falhou',
+                    description: error.message || 'Ocorreu um erro ao tentar atualizar.',
+                    status: 'error',
+                    duration: 3000,
+                    isClosable: true,
+                });
+            }
         });
-    };
-
-    return (
-        <Box p={5} maxWidth="600px" borderWidth="1px" borderRadius="lg" overflow="hidden">
-        <FormControl>
-            <FormLabel>Dias da Semana</FormLabel>
-            <CheckboxGroup colorScheme="blue" onChange={handleDayChange}>
-            <Stack spacing={[1, 5]} direction={['column', 'row']}>
-              {Object.entries(daysTranslator).map(([englishDay, portugueseDay]) => (
-                <Checkbox key={englishDay} value={englishDay}>{portugueseDay}</Checkbox>
-              ))}
-            </Stack>
-            </CheckboxGroup>
-        </FormControl>
-
-        <FormControl mt={6}>
-          <FormLabel>Horários Disponíveis</FormLabel>
-          <RangeSlider aria-label={['start-time', 'end-time']} defaultValue={[8, 18]} min={8} max={18} onChangeEnd={val => setHourRange(val)}>
-            <RangeSliderTrack>
-              <RangeSliderFilledTrack />
-            </RangeSliderTrack>
-            <RangeSliderThumb index={0} />
-            <RangeSliderThumb index={1} />
-          </RangeSlider>
-          <Text textAlign="center" mt={2}>{`${hourRange[0]}:00 - ${hourRange[1]}:00`}</Text>
-        </FormControl>
-
-        <Button mt={4} colorScheme="teal" onClick={handleSubmit} isDisabled={days.length === 0}>
-            Atualizar
-        </Button>
-        </Box>
-    );
+	};
+	
+	return (
+		<Box p={6} borderWidth="1px" borderRadius="lg" overflow="hidden">
+		<Grid templateColumns={`repeat(${daysOfWeek.length}, 1fr)`} gap={4}>
+			{daysOfWeek.map(day => (
+			<Box key={day} textAlign="center" fontWeight="semibold" color='gray'>
+				{day}
+			</Box>
+			))}
+			{timeSlots.map(time => (
+			daysOfWeek.map(day => (
+				<Button
+                    key={`${day}-${time}`}
+                    colorScheme={availability[day]?.includes(time) ? 'teal' : 'gray'}
+                    onClick={() => toggleSlot(day, time)}
+                    size="sm"
+                    _hover={{ bg: 'teal.100' }}
+				>
+				{time}
+				</Button>
+			))
+			))}
+		</Grid>
+		<Button
+			mt={6}
+			colorScheme="teal"
+			width="full"
+			onClick={handleSubmit}
+		>
+			Atualizar
+		</Button>
+		</Box>
+	);
 }
 
 export default AvailabilityForm;
