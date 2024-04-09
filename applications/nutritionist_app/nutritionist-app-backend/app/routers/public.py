@@ -27,7 +27,7 @@ async def login_for_access_token(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect e-mail or password",
+            detail="e-mail ou senha incorreta",
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(
@@ -60,13 +60,7 @@ async def read_user(
     user_id: int,
     db: AsyncSession = Depends(get_session)
 ) -> models.User:
-    db_user = await crud.get_user(user_id, db)
-    if db_user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
-        )
-    return db_user
+    return await crud.get_user(user_id, db)
 
 
 @router.get(

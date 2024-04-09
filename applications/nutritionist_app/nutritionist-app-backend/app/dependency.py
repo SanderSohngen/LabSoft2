@@ -26,8 +26,8 @@ async def get_current_user(
     user = await db.execute(
         select(User).filter(User.email == token_data.email)
     )
-    user = user.scalar().first()
 
+    user = user.scalar()
     if user is None:
         raise CREDENTIALS_EXCEPTION
     return user

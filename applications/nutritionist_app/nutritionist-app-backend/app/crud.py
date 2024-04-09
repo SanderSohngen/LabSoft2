@@ -15,18 +15,24 @@ async def create_user(
 ) -> User:
     async with db as session:
         result = await session.execute(
-            select(User).filter(User.email == user_data.email)
+            select(User).filter(
+                (User.email == user_data.email) | (User.name == user_data.name)
+            )
         )
         existing_user = result.scalars().first()
         if existing_user:
+            if existing_user.email == user_data.email:
+                detail = "Email já registrado."
+            else:
+                detail = "Nome já registrado."
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_BAD_REQUEST,
-                detail="Email already registered."
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=detail
             )
 
         hashed_password = hash_password(user_data.password)
         new_user = User(
-            **user_data.model_dump(),
+            **user_data.model_dump(exclude={'password'}),
             hashed_password=hashed_password
         )
         session.add(new_user)

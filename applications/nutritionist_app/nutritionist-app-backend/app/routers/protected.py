@@ -1,14 +1,23 @@
 from typing import List
 from fastapi import Depends, APIRouter, status
 
-from .. import crud
+from .. import crud, schemas
 from ..models import TimeSlot, User
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..dependency import get_current_user, get_session
 from ..schemas import TimeSlotCreate, TimeSlotBase, TimeSlotSchema
 
-
 router = APIRouter(dependencies=[Depends(get_current_user)])
+
+
+@router.get(
+    "/users/me",
+    response_model=schemas.User,
+)
+async def read_me(
+    current_user: User = Depends(get_current_user)
+) -> User:
+    return current_user
 
 
 @router.post(
