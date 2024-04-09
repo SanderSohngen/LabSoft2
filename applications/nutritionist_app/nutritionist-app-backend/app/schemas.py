@@ -40,7 +40,7 @@ class TimeSlotCreate(TimeSlotBase):
     pass
 
 
-class TimeSlotSchema(TimeSlotBase):
+class TimeSlot(TimeSlotBase):
     id: int
 
     class Config:

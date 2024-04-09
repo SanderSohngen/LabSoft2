@@ -6,7 +6,7 @@ from .models import User, TimeSlot
 from .security import hash_password
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from .schemas import UserCreate, TimeSlotCreate, TimeSlotBase
+from .schemas import UserCreate, TimeSlotCreate
 
 
 async def create_user(
@@ -73,25 +73,6 @@ async def create_timeslot(
     db: AsyncSession
 ) -> List[TimeSlot]:
     async with db as session:
-        new_time_slots = [
-            TimeSlot(
-                user_id=user.id,
-                **time_slot.model_dump()
-            )
-            for time_slot in time_slots_data
-        ]
-        session.add_all(new_time_slots)
-        await session.commit()
-        await session.refresh(new_time_slots)
-        return new_time_slots
-
-
-async def update_timeslot(
-    time_slots_data: List[TimeSlotBase],
-    user: User,
-    db: AsyncSession
-) -> List[TimeSlot]:
-    async with db as session:
         await session.execute(
             delete(TimeSlot).where(TimeSlot.user_id == user.id)
         )
@@ -99,12 +80,12 @@ async def update_timeslot(
 
         new_time_slots = [
             TimeSlot(
-                user_id=user.id,
                 **time_slot.model_dump()
             )
             for time_slot in time_slots_data
         ]
         session.add_all(new_time_slots)
+        await session.flush()
         await session.commit()
         for time_slot in new_time_slots:
             await session.refresh(time_slot)
