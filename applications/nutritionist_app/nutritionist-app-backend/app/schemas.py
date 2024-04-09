@@ -1,4 +1,5 @@
 from datetime import time
+from typing import List
 from pydantic import BaseModel, EmailStr
 
 
@@ -42,6 +43,13 @@ class TimeSlotCreate(TimeSlotBase):
 
 class TimeSlot(TimeSlotBase):
     id: int
+
+    class Config:
+        from_attributes = True
+
+
+class UserAvailability(User):
+    days_available: List[int]
 
     class Config:
         from_attributes = True

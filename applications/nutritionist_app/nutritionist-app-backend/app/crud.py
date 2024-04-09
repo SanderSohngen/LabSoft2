@@ -6,7 +6,8 @@ from .models import User, TimeSlot
 from .security import hash_password
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from .schemas import UserCreate, TimeSlotCreate
+from .schemas import UserCreate, TimeSlotCreate, UserAvailability
+from .utils import build_user_data
 
 
 async def create_user(
@@ -102,3 +103,25 @@ async def get_timeslot(
         )
         time_slots = result.scalars().all()
         return time_slots
+
+
+async def get_users_with_availability(
+    db: AsyncSession
+) -> List[UserAvailability]:
+    async with db as session:
+        result = await session.execute(
+            select(
+                User.id,
+                User.name,
+                User.email,
+                TimeSlot.day_of_week
+            ).join(
+                TimeSlot, TimeSlot.user_id == User.id
+            ).order_by(User.id)
+        )
+        user_data = build_user_data(result)
+
+        return [
+            UserAvailability(**user)
+            for user in user_data
+        ]

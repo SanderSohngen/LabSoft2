@@ -83,3 +83,13 @@ async def get_time_slots(
 ) -> List[datetime]:
     time_slots = await crud.get_time_slots(user_id, db)
     return generate_time_slots(time_slots)
+
+
+@router.get(
+    "/users/time_slots/",
+    response_model=List[schemas.UserAvailability]
+)
+async def get_users_with_availability(
+    db: AsyncSession = Depends(get_session)
+) -> List[schemas.UserAvailability]:
+    return await crud.get_users_with_availability(db)
