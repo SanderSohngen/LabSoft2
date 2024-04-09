@@ -10,8 +10,6 @@ const AuthTabs = () => {
 		setTabIndex(index);
 	};
 
-	const switchToLoginTab = () => setTabIndex(0);
-
 	return (
 		<Box p={4}>
 			<Tabs index={tabIndex} onChange={handleTabsChange} isFitted variant="enclosed">
@@ -24,7 +22,7 @@ const AuthTabs = () => {
 						<Login />
 					</TabPanel>
 					<TabPanel>
-						<Signup onSignupSucess={switchToLoginTab}/>
+						<Signup />
 					</TabPanel>
 				</TabPanels>
 			</Tabs>
