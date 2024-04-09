@@ -7,11 +7,11 @@ function Home() {
     const { isLoggedIn, logout } = useAuth();
     return (
         <Flex align="center" alignItems="center" justifyContent="center">
-        <VStack spacing={4}>
+        <VStack spacing={4} mb={4} mt={4}>
             {
                 isLoggedIn? (
                     <>
-                        <Text fontSize="4xl" mb={4}>Atualizar Disponibilidade</Text>
+                        <Text fontSize="4xl" mb={4} fontWeight="bold" color='gray'>Atualizar Disponibilidade</Text>
                         <AvailabilityForm />
                         <Button colorScheme="red" onClick={logout}>Logout</Button>
                     </>

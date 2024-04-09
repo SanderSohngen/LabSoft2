@@ -62,13 +62,10 @@ const Signup = () => {
                 });
             }
         });
-
-        if (signup.isPending || login.isPending) {
-            return <Loading />;
-        }
     };
 
     return (
+        <>
         <Box width="md">
             <form onSubmit={handleSubmit} >
                 <FormControl mb={4}>
@@ -90,6 +87,8 @@ const Signup = () => {
                 </Button>
             </form>
         </Box>
+        { (signup.isPending || login.isPending) && <Loading />}
+        </>
     );
 };
 

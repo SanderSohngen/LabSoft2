@@ -40,11 +40,8 @@ const Login = () => {
         });
     };
 
-    if (login.isPending) {
-        return <Loading />;
-    }
-
     return (
+        <>
         <Box width="md">
             <form onSubmit={handleSubmit}>
                 <FormControl mb={4} isInvalid={!!formErrors.email}>
@@ -60,6 +57,8 @@ const Login = () => {
                 </Button>
             </form>
         </Box>
+        {login.isPending && <Loading/>}
+        </>
     );
 };
 
