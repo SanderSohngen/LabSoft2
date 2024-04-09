@@ -12,10 +12,13 @@ const userMeURL = usersURL + ME
 
 export const signup = async (userData) => {
   try {
-    const response = await axios.post(usersURL, userData);
+    const response = await axios.post(usersURL, userData, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
     return response.data;
   } catch (error) {
-    console.log(error);
     if (error.response) {
       throw new Error(error.response.data.detail || 'Failed to sign up.');
     } 
