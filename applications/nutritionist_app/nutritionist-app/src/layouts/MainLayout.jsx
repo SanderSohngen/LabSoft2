@@ -19,7 +19,7 @@ function MainLayout() {
                 title: 'Bem vindo de volta',
                 description: `Olá novamente, ${user.name}.`,
                 status: 'success',
-                duration: 5000,
+                duration: 3000,
                 isClosable: true,
             })
             setHasWelcomed(true);
@@ -29,7 +29,7 @@ function MainLayout() {
                 title: 'Tchau',
                 description: `Esperamos que volte em breve`,
                 status: 'info',
-                duration: 5000,
+                duration: 3000,
                 isClosable: true,
             })
             setHasWelcomed(false);

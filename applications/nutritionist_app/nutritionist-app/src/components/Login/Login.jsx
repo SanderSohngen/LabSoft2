@@ -33,7 +33,7 @@ const Login = () => {
                     title: 'Login falhou',
                     description: error.response?.data?.message || 'Ocorreu um erro ao tentar logar.',
                     status: 'error',
-                    duration: 5000,
+                    duration: 3000,
                     isClosable: true,
                 });
             }

@@ -46,7 +46,7 @@ const Signup = () => {
                             title: 'Conta criada',
                             description: `Olá, ${signupData.name}, sua conta foi criada e você será logado.`,
                             status: 'success',
-                            duration: 5000,
+                            duration: 3000,
                             isClosable: true,
                         });
                     }
@@ -57,7 +57,7 @@ const Signup = () => {
                     title: 'Falha ao criar conta.',
                     description: error.message || "Ocorreu um erro ao criar conta.",
                     status: 'error',
-                    duration: 5000,
+                    duration: 3000,
                     isClosable: true,
                 });
             }
