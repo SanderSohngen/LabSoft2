@@ -19,6 +19,7 @@
                     <span class="visually-hidden">Toggle navigation</span>
                     <span class="navbar-toggler-icon"></span>
                 </button>
+                {% if user.is_authenticated %}
                 <div class="collapse navbar-collapse" id="navcol-1">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
@@ -31,10 +32,11 @@
                             <a class="nav-link active" href="{% url 'doctor_portal-perfil' %}" style="color: #80ed99;text-align: center;background: linear-gradient(rgba(56,163,165,0.34) 97%, rgba(56,163,165,0.7250000000000012) 99%, #38a3a5 100%, black 100%, white 100%), linear-gradient(rgba(56,163,165,0.34) 97%, rgba(56,163,165,0.7250000000000012) 99%, #38a3a5 100%, black 100%, white 100%);border-radius: 20px;margin-right: 5px;">Perfil</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" href="#" style="color: #80ed99;text-align: center;background: linear-gradient(rgba(56,163,165,0.34) 97%, rgba(56,163,165,0.7250000000000012) 99%, #38a3a5 100%, black 100%, white 100%), linear-gradient(rgba(56,163,165,0.34) 97%, rgba(56,163,165,0.7250000000000012) 99%, #38a3a5 100%, black 100%, white 100%);border-radius: 20px;margin-right: 5px;">Sair</a>
+                            <a class="nav-link active" href="/accounts/logout" style="color: #80ed99;text-align: center;background: linear-gradient(rgba(56,163,165,0.34) 97%, rgba(56,163,165,0.7250000000000012) 99%, #38a3a5 100%, black 100%, white 100%), linear-gradient(rgba(56,163,165,0.34) 97%, rgba(56,163,165,0.7250000000000012) 99%, #38a3a5 100%, black 100%, white 100%);border-radius: 20px;margin-right: 5px;">Sair</a>
                         </li>
                     </ul>
                 </div>
+                {% endif %}
             </div>
         </nav>
         <script src="{% static 'js/bootstrap.min.js' %}"></script>

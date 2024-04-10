@@ -1,0 +1,18 @@
+{% extends "doctor_portal/base.html"%}
+{%block content %}
+{% load crispy_forms_tags %}
+    <div class="container" margin-bottom="30px">
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
+
+            {{ form|crispy }}
+            <button type="submit" class="btn btn-primary btn-block">Logar</button>
+        </form>
+        <a href="../register/">
+            <button class="btn btn-primary btn-block">Registrar</button>
+        </a> 
+    </div>
+{% endblock content %}
+
+    
