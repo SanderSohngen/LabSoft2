@@ -20,26 +20,22 @@
                 <div class="col-lg-12">
                     <div class="card card-primary card-outline">
                         <div class="card-body box-profile">
-                            <form id="profileForm" method="post" action="{% url 'edit_profile' %}">
+                            <form id="profileForm" method="POST" action="{% url 'edit_profile' %}">
                                 {% csrf_token %}
-                                <!-- Non-editable fields -->
+                                <!-- Non-editable email field -->
                                 <div class="form-group">
                                     <label>Email</label>
                                     <input type="email" class="form-control" name="email" readonly value="{{ user.email }}">
                                 </div>
-                                <div class="form-group">
-                                    <label>Account Type</label>
-                                    <input type="text" class="form-control" name="account_type" readonly value="{{ user.account_type }}">
-                                </div>
 
-                                <!-- Editable profile information fields -->
+                                <!-- Initially disabled profile information fields -->
                                 <div class="form-group">
                                     <label>Name</label>
-                                    <input type="text" class="form-control profile-info" name="full_name" readonly value="{{ user.full_name }}">
+                                    <input type="text" class="form-control profile-info" name="full_name" value="{{ user.full_name }}" readonly>
                                 </div>
                                 <div class="form-group">
                                     <label>Age</label>
-                                    <input type="number" class="form-control profile-info" name="age" readonly value="{{ user.age }}">
+                                    <input type="number" class="form-control profile-info" name="age" value="{{ user.age }}" readonly>
                                 </div>
                                 <div class="form-group">
                                     <label>Gender</label>
@@ -51,20 +47,20 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Weight (kg)</label>
-                                    <input type="number" class="form-control profile-info" name="weight" readonly value="{{ user.weight }}">
+                                    <input type="number" class="form-control profile-info" name="weight" value="{{ user.weight }}" readonly>
                                 </div>
                                 <div class="form-group">
                                     <label>Height (cm)</label>
-                                    <input type="number" class="form-control profile-info" name="height" readonly value="{{ user.height }}">
+                                    <input type="number" class="form-control profile-info" name="height" value="{{ user.height }}" readonly>
                                 </div>
                                 <div class="form-group">
                                     <label>Dietary Restrictions</label>
-                                    <textarea class="form-control profile-info" name="dietary_restrictions" rows="3" readonly> {{ user.dietary_restrictions }} </textarea>
+                                    <textarea class="form-control profile-info" name="dietary_restrictions" rows="3" readonly>{{ user.dietary_restrictions }}</textarea>
+                                </div>
+                                <div class="d-flex justify-content-end">
+                                    <button id="editProfileBtn" type="button" class="btn btn-primary">Edit Profile</button>
                                 </div>
                             </form>
-                            <div class="d-flex justify-content-end">
-                                <button id="editProfileBtn" class="btn btn-primary">Edit Profile</button>
-                            </div>
                         </div>
                         <!-- /.card-body -->
                     </div>
@@ -83,11 +79,14 @@ $(document).ready(function() {
     $('#editProfileBtn').click(function() {
         var isEditing = $(this).text() === "Edit Profile";
         if (isEditing) {
-            // Change to "Save Changes" mode, enable fields
+            // Change to "Save Changes" mode, enable fields except email
             $(this).text('Save Changes').removeClass('btn-primary').addClass('btn-success');
             $('.profile-info').each(function() {
-                $(this).prop('readonly', false);
-                $(this).prop('disabled', false);
+                // Check if it's not the email field before enabling
+                if (!$(this).is('[name="email"]')) {
+                    $(this).prop('readonly', false);
+                    $(this).prop('disabled', false);
+                }
             });
         } else {
             // Submit the form
@@ -95,8 +94,8 @@ $(document).ready(function() {
         }
     });
 
-    // Optional: If you're handling the form submission via AJAX, you can include AJAX call here
-    // and on success, toggle back the button to "Edit Profile" and disable the fields again.
+    // Ensure email field stays readonly
+    $('input[name="email"]').prop('readonly', true);
 });
 </script>
 {% endblock body %}

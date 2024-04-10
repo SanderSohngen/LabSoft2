@@ -15,15 +15,10 @@ class CustomUserCreationForm(UserCreationForm):
         required=True, 
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Email'})
     )
-    account_type = forms.ChoiceField(
-        choices=[('professional', 'Professional'), ('patient', 'Patient')],
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        required=True
-    )
-
+    
     class Meta:
         model = User
-        fields = ('full_name', 'email', 'password1', 'password2', 'account_type')
+        fields = ('full_name', 'email', 'password1', 'password2')
     
     def save(self, commit=True):
         user = super().save(commit=False)

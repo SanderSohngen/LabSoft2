@@ -49,6 +49,7 @@ def profile(request):
 def edit_profile(request):
     if request.method == 'POST':
         form = EditUserInfoForm(request.POST, instance=request.user)
+        print("POST data:", request.POST)
         if form.is_valid():
             form.save()
             messages.success(request, 'Profile updated successfully.')
