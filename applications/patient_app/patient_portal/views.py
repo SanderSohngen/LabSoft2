@@ -3,8 +3,19 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
-from .forms import CustomUserCreationForm
-from .forms import EditUserInfoForm
+from .forms import CustomUserCreationForm, EditUserInfoForm
+
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.viewsets import ViewSet
+from rest_framework import generics, viewsets
+
+from .models import CustomUser, Appointment, Document
+from .serializers import (CustomUserSerializer, AppointmentSerializer, DocumentSerializer, 
+                         CustomPatientSerializer, CustomAppointmentSerializer, CustomPatientDetailSerializer,
+                         CustomDocumentSerializer, CustomObservationSerializer, CustomDocumentPostSerializer)
+
+from drf_yasg.utils import swagger_auto_schema
 
 def index(request):
     return render(request, 'services/index.html')
@@ -67,3 +78,196 @@ def edit_profile(request):
             return HttpResponseRedirect('/profile')  # Redirect back to the profile, adjust if needed
     else:
         return HttpResponseRedirect('/profile')  # Redirect if not POST
+
+#API CALLS (URRESTRICTED ACCESS TO SIMPLIFY THE PROCESS)
+
+#CRUD ENDPOINTS FOR DEVELOPEMENT PURPOSES
+class CustomUserViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+
+class AppointmentViewSet(viewsets.ModelViewSet):
+    queryset = Appointment.objects.all()
+    serializer_class = AppointmentSerializer
+
+class DocumentViewSet(viewsets.ModelViewSet):
+    queryset = Document.objects.all()
+    serializer_class = DocumentSerializer
+
+#API CALLS TO FEED OTHER APPLICATIONS
+
+class CustomProfessionalViewSet(ViewSet):
+
+    @swagger_auto_schema(
+        method='get',
+        responses={200: CustomPatientSerializer(many=True)},
+        operation_description="Retrieve a list of patients for a given professional."
+    )
+    @action(detail=False, url_path='(?P<profession>[^/.]+)/(?P<professional_id>\d+)/patients')
+    def professional_patients(self, request, profession, professional_id):
+        patients = CustomUser.objects.filter(appointments__professional_id=professional_id, appointments__profession=profession)
+        serializer = CustomPatientSerializer(patients, many=True)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(
+        method='get',
+        responses={200: CustomAppointmentSerializer(many=True)},
+        operation_description="Retrieve appointments for a given professional."
+    )
+    @action(detail=False, url_path='(?P<profession>[^/.]+)/(?P<professional_id>\d+)/appointments')
+    def professional_appointments(self, request, profession, professional_id):
+        appointments = Appointment.objects.filter(professional_id=professional_id, profession=profession)
+        serializer = CustomAppointmentSerializer(appointments, many=True)
+        return Response(serializer.data)
+
+class CustomPatientViewSet(ViewSet):
+
+    @swagger_auto_schema(
+        method='get',
+        responses={200: CustomPatientDetailSerializer()},
+        operation_description="Retrieve details for a specific patient."
+    )
+    @action(detail=True, methods=['get'], url_path='details')
+    def patient_details(self, request, pk=None):
+        patient = CustomUser.objects.get(pk=pk)
+        serializer = CustomPatientDetailSerializer(patient)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(
+        method='get',
+        responses={200: CustomDocumentSerializer(many=True)},
+        operation_description="Retrieve documents for a specific patient by professional."
+    )
+    @action(detail=True, methods=['get'], url_path='(?P<profession>[^/.]+)/(?P<professional_id>\d+)/documents')
+    def patient_documents(self, request, pk=None, profession=None, professional_id=None):
+        documents = Document.objects.filter(patient_id=pk, professional_id=professional_id, profession=profession)
+        serializer = CustomDocumentSerializer(documents, many=True)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(
+        method='post',
+        request_body=CustomObservationSerializer,
+        responses={200: CustomObservationSerializer(many=True)},
+        operation_description="Post an observation for a specific patient and professional."
+    )
+    @action(detail=True, methods=['post'], url_path='(?P<profession>[^/.]+)/(?P<professional_id>\d+)/observation')
+    def post_observation(self, request, pk=None, profession=None, professional_id=None):
+        serializer = CustomObservationSerializer(data=request.data)
+        if serializer.is_valid():
+            observation = serializer.validated_data['observation']
+            patient = CustomUser.objects.get(pk=pk)
+            if profession == 'nutritionist':
+                patient.nutritionist_observation = observation
+            elif profession == 'medical':
+                patient.medical_observation = observation
+            elif profession == 'trainer':
+                patient.personal_trainer_observation = observation
+            elif profession == 'psychologist':
+                patient.psychologist_observation = observation
+            patient.save()
+            return Response({'status': 'observation updated'})
+        else:
+            return Response(serializer.errors, status=400)
+
+    @swagger_auto_schema(
+        method='post',
+        request_body=CustomDocumentPostSerializer,
+        responses={200: 'Document created successfully'},
+        operation_description="Post a new document with its ID and URL for a specific patient and professional."
+    )
+    @action(detail=False, methods=['post'], url_path='(?P<profession>[^/.]+)/(?P<professional_id>\d+)/documents')
+    def post_documents(self, request, pk=None, profession=None, professional_id=None):
+        serializer = CustomDocumentPostSerializer(data=request.data)
+        if serializer.is_valid():
+            document = serializer.save(patient_id=patient_id, profession=profession, professional_id=professional_id)
+            return Response({
+                "documentId": serializer.validated_data['documentId'],
+                "url": serializer.validated_data['url'],
+                "message": "Document created successfully"
+            }, status=201)
+        else:
+            return Response(serializer.errors, status=400)
+
+
+# 1)
+# get /professional/{profession}/{professional_id}/patients
+# [
+#   {
+#     "id": 1,
+#     "name": "Alice"
+#   },
+#   {
+#     "id": 2,
+#     "name": "Breno"
+#   }
+# ]
+
+
+# 2)
+# get /professional/{profession}/{professional_id}/appointments
+# [
+#   {
+#     "name": "Alice",
+#     "datetime": "2024-04-12 09:00:00"
+#   },
+#   {
+#     "name": "Breno",
+#     "datetime": "2024-04-13 10:00:00"
+#   }
+# ]
+
+
+# 3) 
+# get /patient/{patient_id}/details
+# {
+#   "id": 1,
+#   "name": "Alice",
+#   "age": 29,
+#   "weight": 60, 
+#   "height": 165, 
+#   "gender": "Female",
+#   "dietaryRestrictions": "None",
+#   "notes": [
+#     {
+#       "profession": "personal trainer",
+#       "content": "Needs follow-up"
+#     },
+#     {
+#       "profession": "psicologist",
+#       "content": "Medication adjusted"
+#     }
+#   ]
+# }
+
+# 4)
+# get /patient/{patient_id}/{profession}/{professional_id}/documents
+# [
+#   {
+#     "documentId": "file123",
+#     "profession": "nutritionist",
+#     "url": "https://s3.example.com/bucket/file123",
+#     "uploaded": "2024-03-01"
+#   },
+#   {
+#     "documentId": "file456",
+#     "profession": "personal trainer",
+#     "url": "https://s3.example.com/bucket/file456",
+#     "uploaded": "2024-03-02"
+#   }
+# ]
+
+# 5)
+# post /patient/{patient_id}/{profession}/{professional_id}/observation
+# {
+#   "observation": "Patient shows signs of improvement after treatment."
+# }
+
+
+# 6)
+# post /patient/{patient_id}/{profession}/{professional_id}/documents
+# {
+#   "metadata": {
+#     "documentId": "file789",
+#     "url": "https://s3.example.com/bucket/file789",
+#   }
+# }

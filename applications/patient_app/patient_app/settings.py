@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'drf_yasg',
     'patient_portal',
 ]
 
@@ -118,3 +120,11 @@ AUTH_USER_MODEL = 'patient_portal.CustomUser'
 
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
+
+# Django REST Framework global settings
+REST_FRAMEWORK = {
+    # Default permissions are set to allow unrestricted access
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ]
+}

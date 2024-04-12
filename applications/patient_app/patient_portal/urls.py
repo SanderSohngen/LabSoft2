@@ -1,9 +1,16 @@
-from django.urls import path
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-
+from rest_framework.routers import DefaultRouter
 from . import views
+from .views import CustomUserViewSet, AppointmentViewSet, DocumentViewSet, CustomProfessionalViewSet, CustomPatientViewSet
 
+router = DefaultRouter()
+router.register(r'users', CustomUserViewSet)
+router.register(r'appointments', AppointmentViewSet)
+router.register(r'documents', DocumentViewSet)
+router.register(r'professionals', CustomProfessionalViewSet, basename='professionals')
+router.register(r'patients', CustomPatientViewSet, basename='patients')
 urlpatterns = [
     path('', views.index, name='index'),
     path('register/', views.register, name='register'),
@@ -13,4 +20,7 @@ urlpatterns = [
     path('documents/', views.documents, name='documents'),
     path('profile/', views.profile, name='profile'),
     path('profile/edit/', views.edit_profile, name='edit_profile'),
-] 
+    path('api/', include(router.urls)),
+]
+
+
