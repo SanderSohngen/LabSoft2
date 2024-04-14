@@ -1,28 +1,29 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Input, List, ListItem } from '@chakra-ui/react';
+import { useFetchPatients } from '../../hooks/usePatient';
+import Loading from '../Loading/Loading';
 
-const allNames = ['Alice', 'Bob', 'Charlie', 'David', 'Eve'];
 
 function NameSearch({ basePath }) {
   const [inputValue, setInputValue] = useState('');
+  const { data: patients, isLoading } = useFetchPatients("nutritionist");
   const [filteredNames, setFilteredNames] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (inputValue) {
-      const newFilteredNames = allNames.filter(name =>
-        name.toLowerCase().includes(inputValue.toLowerCase())
-      );
-      setFilteredNames(newFilteredNames);
-    } else {
-      setFilteredNames([]);
-    }
-  }, [inputValue]);
+    const sortedList = patients?.sort((a, b) => a.name.localeCompare(b.name));
+    const filtered = sortedList?.filter(patient =>
+      patient.name.toLowerCase().includes(inputValue.toLowerCase())
+    );
+    setFilteredNames(filtered);
+  }, [inputValue, patients]);
 
-  const handleSelectName = (name) => {
-    navigate(`/${basePath}/${name}`);
+  const handleSelectName = (id) => {
+    navigate(`/${basePath}/${id}`);
   };
+
+  if (isLoading) return <Loading />;
 
   return (
     <>
@@ -35,9 +36,9 @@ function NameSearch({ basePath }) {
       {inputValue && (
         <List>
           {filteredNames.length > 0 ? (
-            filteredNames.map((name, index) => (
-              <ListItem key={index} cursor="pointer" onClick={() => handleSelectName(name)}>
-                {name}
+            filteredNames.map((patient) => (
+              <ListItem key={patient.id} cursor="pointer" onClick={() => handleSelectName(patient.id)}>
+                {patient.name}
               </ListItem>
             ))
           ) : (
