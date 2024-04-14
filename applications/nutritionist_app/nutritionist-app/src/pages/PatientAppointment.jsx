@@ -7,7 +7,7 @@ function PatientAppointment() {
     const { name } = useParams();
     return (
         <Box flex="1" p={5}>
-        <Text fontSize="4xl" mb={4}>Consulta com Paciente </Text>
+            <Text fontSize="4xl" mb={4} fontWeight="bold" color='gray'>Consulta com Paciente</Text>
             <VStack spacing={8} flex="1">
                 <Chat user={name} />
             </VStack>

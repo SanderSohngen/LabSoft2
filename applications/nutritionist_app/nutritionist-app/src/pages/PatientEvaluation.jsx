@@ -1,5 +1,4 @@
-import { useParams } from "react-router-dom";
-import { Box, VStack, Text } from "@chakra-ui/react";
+import { Flex, VStack, Text } from "@chakra-ui/react";
 import PatientCard from "../components/PatientCard/PatientCard";
 import ExtraInfoAccordion from "../components/ExtraInfoAccordion/ExtraInfoAccordion";
 import InputEvaluation from "../components/InputEvaluation/InputEvaluation";
@@ -10,7 +9,7 @@ const patientData = {
     age: 25,
     weight: 60,
     height: 175,
-    dietaryRestrictions: "Alcohol, Gluten, Fat, Caffeine"
+    dietaryRestrictions: "Alcool, Gluten, Gordura e Cafeína"
 }
 
 const evaluationData = [
@@ -25,16 +24,17 @@ const evaluationData = [
 ]
 
 function PatientEvaluation() {
-    const { name } = useParams();
     return (
-        <Box flex="1" p={5}>
-        <Text fontSize="4xl" mb={4}>Avaliação de Paciente</Text>
-            <VStack spacing={8}>
-                <PatientCard {...patientData} />
-                <ExtraInfoAccordion info={evaluationData} />
-                <InputEvaluation />
+        <Flex align="center" alignItems="center" justifyContent="center" p={5} >
+            <VStack spacing={4} mb={4} mt={4}>
+                <Text fontSize="4xl" mb={4} fontWeight="bold" color='gray'>Avaliação de Paciente</Text>
+                <VStack spacing={8}>
+                    <PatientCard {...patientData} />
+                    <ExtraInfoAccordion info={evaluationData} />
+                    <InputEvaluation />
+                </VStack>
             </VStack>
-        </Box>
+        </Flex>
     );
 }
 

@@ -1,12 +1,14 @@
 import Calendar from '../components/Calendar/Calendar';
-import { Box, Text } from '@chakra-ui/react';
+import { Flex, Text, VStack } from '@chakra-ui/react';
 
 function Schedule() {
   return (
-    <Box flex="1" p={5}>
-      <Text fontSize="4xl" mb={4}>Agenda</Text>
-      <Calendar />
-    </Box>
+    <Flex align="center" alignItems="center" justifyContent="center" p={5} >
+        <VStack spacing={4} mb={4} mt={4}>
+            <Text fontSize="4xl" mb={4} fontWeight="bold" color='gray'>Agenda</Text>
+            <Calendar />
+        </VStack>
+    </Flex>
   );
 }
 
