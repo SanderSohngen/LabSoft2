@@ -7,7 +7,7 @@ const ME = process.env.REACT_APP_ME_URL;
 
 const usersURL = BASE_URL + USERS;
 const tokenURL = BASE_URL + TOKEN;
-const userMeURL = usersURL + ME
+const userMeURL = usersURL + ME;
 
 
 export const signup = async (userData) => {
