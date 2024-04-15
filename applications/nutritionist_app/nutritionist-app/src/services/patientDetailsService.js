@@ -3,13 +3,14 @@ import axios from 'axios';
 const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 const PATIENT = process.env.REACT_APP_PATIENT_URL;
 
-const patient_url = BASE_URL + PATIENT;
+const patientURL = BASE_URL + PATIENT;
 const details = "details";
 
+const detailsURL = (patientId) => `${patientURL}${patientId}/${details}`;
+
 export const fetchPatientDetails = async (patientId, token) => {
-  const url = `${patient_url}${patientId}/${details}`;
   try {
-    const response = await axios.get(url, {
+    const response = await axios.get(detailsURL(patientId), {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     return response.data;

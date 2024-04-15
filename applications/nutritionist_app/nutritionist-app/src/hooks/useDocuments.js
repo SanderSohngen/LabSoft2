@@ -2,17 +2,17 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import * as documentService from '../services/documentService';
 import { useAuth } from '../context/AuthContext';
 
-export const useFetchDocuments = (patientId, profession) => {
+export const useFetchDocuments = (patientId) => {
   const { user } = useAuth();
   return useQuery({
-    queryKey: ['fetchDocuments', patientId, profession, user.id],
-    queryFn: () => documentService.fetchDocuments(patientId, profession, user.id, user.access_token)
+    queryKey: ['fetchDocuments', patientId],
+    queryFn: () => documentService.fetchDocuments(patientId, user.access_token)
   });
 };
 
-export const usePostDocument = (patientId, profession) => {
+export const usePostDocument = (patientId) => {
   const { user } = useAuth();
   return useMutation({
-    mutationFn: (documentData) => documentService.postDocument(patientId, profession, user.id, documentData, user.access_token)
+    mutationFn: (documentData) => documentService.postDocument(patientId, documentData, user.access_token)
   });
 };
