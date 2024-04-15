@@ -81,7 +81,7 @@ async def get_time_slots(
     user_id: int,
     db: AsyncSession = Depends(get_session)
 ) -> List[datetime]:
-    time_slots = await crud.get_time_slots(user_id, db)
+    time_slots = await crud.get_timeslot(user_id, db)
     return generate_time_slots(time_slots)
 
 
