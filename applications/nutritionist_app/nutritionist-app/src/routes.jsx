@@ -21,7 +21,7 @@ const routes = createRoutesFromElements(
         <Route path="plano-alimentar" element={<DietPlan />} />
         <Route path="plano-alimentar/:patientId" element={<PatientDietPlan />} />
         <Route path="consulta" element={<Appointment />} />
-        <Route path="consulta/:name" element={<PatientAppointment />} />
+        <Route path="consulta/:patientId" element={<PatientAppointment />} />
       </Route>
       <Route path="*" element={<ErrorPage />} />
     </Route>

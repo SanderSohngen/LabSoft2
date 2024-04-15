@@ -10,7 +10,6 @@ import {
 
 
 function Chat( { user }) {
-    console.log(user)
     const messages = [
         { content: "Hey, how are you Alice?", timestamp: "10:00 AM", sender: "Bob" },
         { content: "I'm good, thanks for asking!", timestamp: "10:01 AM", sender: "Alice" },
