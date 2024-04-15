@@ -11,6 +11,12 @@ from ..external_schemas import (
     DocumentUpload,
     Observation
 )
+from ..mock_data_generator import (
+    generate_mock_patients,
+    generate_weekday_appointments,
+    generate_mock_patient_detail,
+    generate_mock_documents,
+)
 
 
 router = APIRouter()
@@ -25,6 +31,8 @@ async def get_patients(
     professional_id: int,
     client: AsyncClient = Depends(get_client)
 ) -> List[Patient]:
+    return generate_mock_patients()
+
     response = await client.get(
         f"/professional/{profession}/{professional_id}/patients"
     )
@@ -45,6 +53,7 @@ async def get_appointments(
     professional_id: int,
     client: AsyncClient = Depends(get_client)
 ) -> List[Appointment]:
+    return generate_weekday_appointments()
     response = await client.get(
         f"/professional/{profession}/{professional_id}/appointments"
     )
@@ -64,6 +73,7 @@ async def get_patient_details(
     patient_id: int,
     client: AsyncClient = Depends(get_client)
 ) -> PatientDetail:
+    return generate_mock_patient_detail(patient_id)
     response = await client.get(
         f"/patient/{patient_id}/details"
     )
@@ -85,6 +95,7 @@ async def get_documents(
     professional_id: int,
     client: AsyncClient = Depends(get_client)
 ) -> List[Document]:
+    return generate_mock_documents()
     response = await client.get(
         f"/patient/{patient_id}/{profession}/{professional_id}/documents"
     )
