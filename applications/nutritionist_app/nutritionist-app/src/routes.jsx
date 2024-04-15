@@ -19,7 +19,7 @@ const routes = createRoutesFromElements(
         <Route path="avaliacao" element={<Evaluation />} />
         <Route path="avaliacao/:patientId" element={<PatientEvaluation />} />
         <Route path="plano-alimentar" element={<DietPlan />} />
-        <Route path="plano-alimentar/:name" element={<PatientDietPlan />} />
+        <Route path="plano-alimentar/:patientId" element={<PatientDietPlan />} />
         <Route path="consulta" element={<Appointment />} />
         <Route path="consulta/:name" element={<PatientAppointment />} />
       </Route>
