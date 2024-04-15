@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib import messages
@@ -105,9 +106,20 @@ class CustomProfessionalViewSet(ViewSet):
     )
     @action(detail=False, url_path='(?P<profession>[^/.]+)/(?P<professional_id>\d+)/patients')
     def professional_patients(self, request, profession, professional_id):
-        patients = CustomUser.objects.filter(appointments__professional_id=professional_id, appointments__profession=profession)
-        serializer = CustomPatientSerializer(patients, many=True)
-        return Response(serializer.data)
+        try:
+            # Use the correct related_name 'patient_appointments' in the query
+            patients = CustomUser.objects.filter(
+                patient_appointments__professional_id=professional_id,
+                patient_appointments__profession=profession
+            ).distinct()
+            serializer = CustomPatientSerializer(patients, many=True)
+            return Response(serializer.data)
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'Patients for the given professional and profession not found'}, status=404)
+        except Exception as e:
+            # Log the error for debugging purposes
+            # logger.error('Unexpected error occurred', exc_info=e)
+            return Response({'error': str(e)}, status=500)
 
     @swagger_auto_schema(
         method='get',
@@ -127,9 +139,9 @@ class CustomPatientViewSet(ViewSet):
         responses={200: CustomPatientDetailSerializer()},
         operation_description="Retrieve details for a specific patient."
     )
-    @action(detail=True, methods=['get'], url_path='details')
-    def patient_details(self, request, pk=None):
-        patient = CustomUser.objects.get(pk=pk)
+    @action(detail=False , methods=['get'], url_path='(?P<patient_id>\d+)/details')
+    def patient_details(self, request, patient_id=None):
+        patient = CustomUser.objects.get(pk=patient_id)
         serializer = CustomPatientDetailSerializer(patient)
         return Response(serializer.data)
 
@@ -138,29 +150,29 @@ class CustomPatientViewSet(ViewSet):
         responses={200: CustomDocumentSerializer(many=True)},
         operation_description="Retrieve documents for a specific patient by professional."
     )
-    @action(detail=True, methods=['get'], url_path='(?P<profession>[^/.]+)/(?P<professional_id>\d+)/documents')
-    def patient_documents(self, request, pk=None, profession=None, professional_id=None):
-        documents = Document.objects.filter(patient_id=pk, professional_id=professional_id, profession=profession)
+    @action(detail=False, methods=['get'], url_path='(?P<patient_id>\d+)/(?P<profession>[^/.]+)/(?P<professional_id>\d+)/getdocuments')
+    def patient_documents(self, request, patient_id=None, profession=None, professional_id=None):
+        documents = Document.objects.filter(patient_id=patient_id, professional_id=professional_id, profession=profession)
         serializer = CustomDocumentSerializer(documents, many=True)
         return Response(serializer.data)
 
     @swagger_auto_schema(
         method='post',
         request_body=CustomObservationSerializer,
-        responses={200: CustomObservationSerializer(many=True)},
+        responses={200: CustomObservationSerializer()},
         operation_description="Post an observation for a specific patient and professional."
     )
-    @action(detail=True, methods=['post'], url_path='(?P<profession>[^/.]+)/(?P<professional_id>\d+)/observation')
-    def post_observation(self, request, pk=None, profession=None, professional_id=None):
+    @action(detail=False, methods=['post'], url_path='(?P<patient_id>\d+)/(?P<profession>[^/.]+)/(?P<professional_id>\d+)/observation')
+    def post_observation(self, request, patient_id=None, profession=None, professional_id=None):
         serializer = CustomObservationSerializer(data=request.data)
         if serializer.is_valid():
             observation = serializer.validated_data['observation']
-            patient = CustomUser.objects.get(pk=pk)
+            patient = CustomUser.objects.get(pk=patient_id)
             if profession == 'nutritionist':
                 patient.nutritionist_observation = observation
-            elif profession == 'medical':
+            elif profession == 'medic':
                 patient.medical_observation = observation
-            elif profession == 'trainer':
+            elif profession == 'personal trainer':
                 patient.personal_trainer_observation = observation
             elif profession == 'psychologist':
                 patient.psychologist_observation = observation
@@ -172,20 +184,32 @@ class CustomPatientViewSet(ViewSet):
     @swagger_auto_schema(
         method='post',
         request_body=CustomDocumentPostSerializer,
-        responses={200: 'Document created successfully'},
+        responses={200: CustomDocumentPostSerializer()},
         operation_description="Post a new document with its ID and URL for a specific patient and professional."
     )
-    @action(detail=False, methods=['post'], url_path='(?P<profession>[^/.]+)/(?P<professional_id>\d+)/documents')
-    def post_documents(self, request, pk=None, profession=None, professional_id=None):
-        serializer = CustomDocumentPostSerializer(data=request.data)
+    @action(detail=False, methods=['post'], url_path='(?P<patient_id>\d+)/(?P<profession>[^/.]+)/(?P<professional_id>\d+)/postdocuments')
+    def post_documents(self, request, patient_id, profession, professional_id):
+        serializer = CustomDocumentPostSerializer(data=request.data, context={
+            'patient_id': patient_id,
+            'profession': profession,
+            'professional_id': professional_id
+        })
         if serializer.is_valid():
-            document = serializer.save(patient_id=patient_id, profession=profession, professional_id=professional_id)
-            return Response({
-                "documentId": serializer.validated_data['documentId'],
-                "url": serializer.validated_data['url'],
-                "message": "Document created successfully"
-            }, status=201)
+            try:
+                document = serializer.save()
+                return Response({
+                    "documentId": serializer.validated_data['documentId'], 
+                    "url": serializer.validated_data['url'],
+                    "message": "Document created successfully"
+                }, status=201)
+            except IntegrityError as e:
+                # Handle specific database errors e.g., missing required fields
+                return Response({'error': 'Failed to create document due to an integrity error.'}, status=400)
+            except Exception as e:
+                # Handle any other exception that wasn't anticipated
+                return Response({'error': str(e)}, status=500)
         else:
+            # Handle validation errors
             return Response(serializer.errors, status=400)
 
 

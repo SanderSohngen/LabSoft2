@@ -11,6 +11,7 @@ router.register(r'appointments', AppointmentViewSet)
 router.register(r'documents', DocumentViewSet)
 router.register(r'professionals', CustomProfessionalViewSet, basename='professionals')
 router.register(r'patients', CustomPatientViewSet, basename='patients')
+
 urlpatterns = [
     path('', views.index, name='index'),
     path('register/', views.register, name='register'),

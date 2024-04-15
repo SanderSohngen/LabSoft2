@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import CustomUser, Appointment, Document
+import json
 
 class CustomUserSerializer(serializers.ModelSerializer):
     patient_id = serializers.IntegerField(source='id', read_only=True)
@@ -59,31 +60,48 @@ class CustomPatientDetailSerializer(serializers.ModelSerializer):
                   'personal_trainer_observation', 'psychologist_observation')
 
 class CustomDocumentSerializer(serializers.ModelSerializer):
-    documentId = serializers.CharField(source='id')
-    url = serializers.CharField(source='object_tag')
+    documentId = serializers.SerializerMethodField()
+    url = serializers.SerializerMethodField()
 
     class Meta:
         model = Document
         fields = ('documentId', 'profession', 'url')
 
+    def get_documentId(self, obj):
+        # Parse the JSON stored in object_tag and return the documentId
+        if obj.object_tag:
+            object_tag = json.loads(obj.object_tag)
+            return object_tag.get('documentId')
+        return None
+
+    def get_url(self, obj):
+        # Parse the JSON stored in object_tag and return the URL
+        if obj.object_tag:
+            object_tag = json.loads(obj.object_tag)
+            return object_tag.get('url')
+        return None
 class CustomObservationSerializer(serializers.Serializer):
     observation = serializers.CharField()
 
 class CustomDocumentPostSerializer(serializers.ModelSerializer):
-    documentId = serializers.CharField(write_only=True)  # Accept documentId as input, not as a model field
-    url = serializers.URLField(write_only=True)          # Accept URL as input
+    documentId = serializers.CharField(write_only=True)
+    url = serializers.URLField(write_only=True)
 
     class Meta:
         model = Document
         fields = ('documentId', 'url')
 
     def create(self, validated_data):
-        # Construct the object_tag from provided data
         object_tag = json.dumps({
             "documentId": validated_data['documentId'],
             "url": validated_data['url']
         })
-        # Create the Document instance with the serialized object_tag
-        document = Document(object_tag=object_tag)
+
+        document = Document(
+            patient_id=self.context['patient_id'], 
+            profession=self.context['profession'], 
+            professional_id=self.context['professional_id'],
+            object_tag=object_tag
+        )
         document.save()
         return document
