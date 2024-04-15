@@ -3,13 +3,14 @@ import axios from 'axios';
 const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 const PATIENT = process.env.REACT_APP_PATIENT_URL;
 
-const patient_url = BASE_URL + PATIENT;
+const patientURL = BASE_URL + PATIENT;
 const documents = "documents";
 
-export const fetchDocuments = async (patientId, profession, professionalId, token) => {
-	const url = `${patient_url}${patientId}/${profession}/${professionalId}/${documents}`;
+const documentsURL = (patientId) => `${patientURL}${patientId}/${documents}`;
+
+export const fetchDocuments = async (patientId, token) => {
 	try {
-	  const response = await axios.get(url, {
+	  const response = await axios.get(documentsURL(patientId), {
 		headers: { 'Authorization': `Bearer ${token}` }
 	  });
 	  return response.data;
@@ -21,10 +22,9 @@ export const fetchDocuments = async (patientId, profession, professionalId, toke
 	}
   };
   
-  export const postDocument = async (patientId, profession, professionalId, documentData, token) => {
-	const url = `${patient_url}${patientId}/${profession}/${professionalId}/${documents}`;
+  export const postDocument = async (patientId, documentData, token) => {
 	try {
-	  const response = await axios.post(url, documentData, {
+	  const response = await axios.post(documentsURL(patientId), documentData, {
 		headers: {
 		  'Authorization': `Bearer ${token}`,
 		  'Content-Type': 'application/json'
