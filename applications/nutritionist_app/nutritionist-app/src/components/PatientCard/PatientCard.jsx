@@ -9,7 +9,7 @@ import {
     StackDivider
 } from '@chakra-ui/react'
 
-function PatientCard({ name, sex, age, weight, height, dietaryRestrictions, }) {
+function PatientCard({ name, gender, age, weight, height, dietaryRestrictions, }) {
     return (
         <Card>
         <CardHeader>
@@ -22,7 +22,7 @@ function PatientCard({ name, sex, age, weight, height, dietaryRestrictions, }) {
                 Idade e Sexo
                 </Heading>
                 <Text pt='2' fontSize='sm'>
-                {age} anos - {sex}
+                {age} anos - {gender}
                 </Text>
             </Box>
             <Box>
