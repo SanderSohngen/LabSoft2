@@ -1,9 +1,10 @@
-import { Box, Button, IconButton, Menu, MenuButton, MenuItem, MenuList, Link } from '@chakra-ui/react';
+import { Box, Button, Menu, MenuButton, MenuItem, MenuList, Link } from '@chakra-ui/react';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 
 
 
 function FileMenu({ fileList }) {
+  console.log(fileList);
   return (
     <Box >
       <Menu>
@@ -12,8 +13,8 @@ function FileMenu({ fileList }) {
         </MenuButton>
         <MenuList>
           {fileList.map(file => (
-            <MenuItem key={file.id} as={Link} href={file.url} isExternal download>
-              {file.name}
+            <MenuItem key={file.documentId} as={Link} href={file.url} isExternal download>
+              {file.documentId}.pdf
             </MenuItem>
           ))}
         </MenuList>

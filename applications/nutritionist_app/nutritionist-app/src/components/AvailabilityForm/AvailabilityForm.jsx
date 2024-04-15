@@ -54,7 +54,6 @@ function AvailabilityForm() {
 				time
 			}))
 		);
-        console.log(availabilityData);
 		submitAvailability.mutateAsync(availabilityData, {
 			onSuccess: () => {
 				toast({

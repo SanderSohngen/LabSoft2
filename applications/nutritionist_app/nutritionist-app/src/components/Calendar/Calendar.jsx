@@ -1,22 +1,43 @@
+import { useEffect, useState } from 'react';
 import ptLocale from '@fullcalendar/core/locales/pt'
 import FullCalendar from '@fullcalendar/react'
-import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
+import { useFetchAppointments } from '../../hooks/useAppointments';
+import Loading from '../Loading/Loading';
 
-export default function Calendar() {
+const calculateEndTime = (startTime) => {
+    return new Date(new Date(startTime).getTime() + 60 * 60 * 1000).toISOString();
+};
+
+function Calendar() {
+  const { data, isLoading } = useFetchAppointments("nutritionist");
+  const [events, setEvents] = useState([]);
+
+  useEffect(() => {
+      if (data) {
+          const formattedEvents = data.map(appointment => ({
+              title: appointment.name,
+              start: appointment.datetime,
+              end: calculateEndTime(appointment.datetime)
+          }));
+          setEvents(formattedEvents);
+      }
+  }, [data]);
+
+  if (isLoading) return <Loading />;
+
   return (
     <FullCalendar
         locale={ptLocale}
-        plugins={[ dayGridPlugin, timeGridPlugin ]}
+        plugins={[ timeGridPlugin ]}
         initialView="timeGridWeek"
         weekends={false}
         slotMinTime="08:00:00"
         slotMaxTime="18:00:00"
         contentHeight="auto"
-        events={[
-            { title: 'evento 1', start: '2024-03-27T11:00', end: '2024-03-27T12:00'},
-            { title: 'evento 2', date: '2024-03-28' }
-        ]}
+        events={events}
     />
   )
 }
+
+export default Calendar;
