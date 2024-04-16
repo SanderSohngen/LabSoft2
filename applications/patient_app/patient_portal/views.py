@@ -1,10 +1,14 @@
 from django.db import IntegrityError
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+import requests
+from django.utils import timezone
+from datetime import datetime
+import json
 
-from .forms import CustomUserCreationForm, EditUserInfoForm
+from .forms import CustomUserCreationForm, EditUserInfoForm, AppointmentForm
 
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -43,16 +47,82 @@ def dashboard(request):
     return render(request, 'services/dashboard.html')
 
 def appointments(request):
-    return render(request, 'services/appointments.html')
+    professionals = get_professionals()
+    if request.method == 'POST':
+        form = AppointmentForm(request.POST)
+        print(request.POST)
+        if form.is_valid():
+            form.save()
+            print(form.cleaned_data)
+            messages.success(request, 'Appointment created successfully.')
+            return HttpResponseRedirect('/appointments')
+        else:
+            print(form.errors)
+            messages.error(request, 'Failed to create appointment.')
+            return render(request, 'services/appointments.html', {'professionals': professionals, })
+    else:
+        return render(request, 'services/appointments.html', {'professionals': professionals})
 
 def agenda(request):
-    return render(request, 'services/agenda.html')
+    # Fetch appointments for the logged-in user
+    user_appointments = Appointment.objects.filter(
+        patient=request.user,
+        time__gte=timezone.now()  # Filter for future appointments
+    ).order_by('time')
+
+    # Format appointments for FullCalendar
+    events = [
+        {
+            'title': f'Consulta com {appointment.professional_name}',  # Updated title
+            'start': appointment.time.isoformat(),  # Maintain ISO format for FullCalendar compatibility
+            'description': f'Consulta com {appointment.profession}',
+            'allDay': False  # Ensure this is false if you use specific times
+        } for appointment in user_appointments
+    ]
+    print(events)
+    # Pass events data as JSON
+    return render(request, 'services/agenda.html', {'events': json.dumps(events)})
 
 def consultations(request):
     return render(request, 'services/consultations.html')
 
 def documents(request):
-    return render(request, 'services/documents.html')
+    # Fetch documents for the logged-in user and organize them by profession
+    user_documents = Document.objects.filter(patient=request.user).order_by('profession')
+    print(user_documents)
+    
+    documents_by_profession = {
+        'Nutricionais': [],
+        'Médicos': [],
+        'Psicólogicos': [],
+        'do Personal Trainer': []
+    }
+
+    for doc in user_documents:
+        # Extract and assign document details
+        doc_details = get_document_details(doc)
+        profession_key = ''  # Determine the key for the profession
+        if doc.profession == 'nutritionist':
+            profession_key = 'Nutricionais'
+        elif doc.profession == 'medic':
+            profession_key = 'Médicos'
+        elif doc.profession == 'psychologist':
+            profession_key = 'Psicólogicos'
+        elif doc.profession == 'personal trainer':
+            profession_key = 'do Personal Trainer'
+        
+        if profession_key:
+            documents_by_profession[profession_key].append({
+                'id': doc.id,
+                'title': doc_details['title'],
+                'url': doc_details['url'],
+                'description': doc_details['description']
+            })
+
+    # You can pass the documents dictionary directly to the template
+    # Or if you need to do further processing, pass the processed dictionary
+    print(documents_by_profession)
+    return render(request, 'services/documents.html', {'documents': documents_by_profession})
 
 def profile(request):
     return render(request, 'services/profile.html') 
@@ -61,7 +131,7 @@ def profile(request):
 def edit_profile(request):
     if request.method == 'POST':
         form = EditUserInfoForm(request.POST, instance=request.user)
-        print("POST data:", request.POST)
+        #print("POST data:", request.POST)
         if form.is_valid():
             form.save()
             messages.success(request, 'Profile updated successfully.')
@@ -79,7 +149,105 @@ def edit_profile(request):
             return HttpResponseRedirect('/profile')  # Redirect back to the profile, adjust if needed
     else:
         return HttpResponseRedirect('/profile')  # Redirect if not POST
+    
+#UTILS
 
+def professional_union():
+    urls = [
+        'http://ec2-54-152-228-191.compute-1.amazonaws.com:8000/users/time_slots/',
+    ]
+    professional_types = ['Nutricionista', 'Médico', 'Psicólogo', 'Personal Trainer']
+    all_professionals = []
+
+    # Function to translate day numbers to day names
+    def translate_days(days):
+        day_mapping = {
+            0: "Seg", 1: "Ter", 2: "Qua", 3: "Qui", 4: "Sex", 5: "Sab", 6: "Dom"
+        }
+        return [day_mapping.get(day) for day in days]
+
+    # Loop through each API endpoint
+    for url, profession in zip(urls, professional_types):
+        try:
+            response = requests.get(url)
+            response.raise_for_status()  # Raise an exception for HTTP error codes
+            professionals = response.json()
+
+            # Format each professional's data
+            for professional in professionals:
+                professional['type'] = profession
+                professional['days_available'] = translate_days(professional['days_available'])
+            all_professionals.extend(professionals)
+        except requests.RequestException as e:
+            print(f"Failed to fetch data from {url}: {str(e)}")
+
+    return all_professionals
+
+def get_professionals():
+    professionals = professional_union()
+    url_mappings = {
+        'Nutricionista': 'http://ec2-54-152-228-191.compute-1.amazonaws.com:8000/time_slots/',
+        # Add other mappings as needed
+    }
+
+    # Function to correct and verify time format
+    def fix_time_format(time_string):
+        try:
+            # Ensure the time string is complete with seconds
+            if len(time_string) == 16:  # 'YYYY-MM-DDTHH:MM'
+                time_string += ':00'
+            dt = datetime.fromisoformat(time_string)  # Corrected to datetime.datetime.fromisoformat
+            return dt.isoformat()
+        except ValueError:
+            return None
+
+    # Iterate through each professional and fetch their time slots
+    for professional in professionals:
+        professional_type = professional['type']
+        professional_id = professional['id']
+        base_url = url_mappings.get(professional_type, '')
+        time_slots_url = f"{base_url}{professional_id}/"
+
+        try:
+            response = requests.get(time_slots_url)
+            response.raise_for_status()
+            time_slots = response.json()
+
+            # Filter out past or booked time slots
+            filtered_slots = []
+            for slot in time_slots:
+                corrected_slot = fix_time_format(slot)
+                if corrected_slot:
+                    slot_time = timezone.make_aware(datetime.fromisoformat(corrected_slot))
+                    # Check against current time and booked appointments
+                    if slot_time > timezone.now():
+                        # Check if the slot is not already booked
+                        if not Appointment.objects.filter(professional_id=professional_id, time=slot_time).exists():
+                            filtered_slots.append(corrected_slot)
+
+            professional['time_slots'] = filtered_slots
+        except requests.RequestException as e:
+            print(f"Failed to fetch time slots for {professional['name']} ({professional_type}): {str(e)}")
+            professional['time_slots'] = []
+
+    return professionals
+
+def get_document_details(document):
+    try:
+        # Assuming object_tag is a JSON field with 'url' and 'description' keys
+        details = json.loads(document.object_tag)
+        return {
+            'url': details.get('url', ''),
+            'description': details.get('description', 'No description available.'),
+            'title': details.get('documentId', 'Unnamed Document')
+        }
+    except json.JSONDecodeError:
+        return {
+            'url': '',
+            'description': 'Invalid document details.',
+            'title': 'Unnamed Document'
+        }
+    
 #API CALLS (URRESTRICTED ACCESS TO SIMPLIFY THE PROCESS)
 
 #CRUD ENDPOINTS FOR DEVELOPEMENT PURPOSES

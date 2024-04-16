@@ -57,6 +57,7 @@ class CustomUser(AbstractUser):
 class Appointment(models.Model):
     patient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='patient_appointments', verbose_name=_('Patient'))
     professional_id = models.IntegerField(verbose_name=_('Professional ID'))
+    professional_name = models.CharField(max_length=100, null=True, blank=True, verbose_name=_('Professional Name'))
     profession = models.CharField(max_length=50, null=True, blank=True, verbose_name=_('Profession'))
     time = models.DateTimeField(null=True, blank=True, verbose_name=_('Time'))
 

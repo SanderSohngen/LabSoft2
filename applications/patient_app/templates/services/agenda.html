@@ -8,7 +8,7 @@
     <div class="container">
       <div class="row mb-2">
         <div class="col-sm-6">
-          <h1 class="m-0"> Portal do Paciente </h1>
+          <h1 class="m-0"> Agenda do Paciente </h1>
         </div><!-- /.col -->
         <div class="col-sm-6">
           <!-- Optionally, breadcrumb or other components can go here -->
@@ -44,44 +44,63 @@
 
 <!-- Script for initializing the calendar -->
 <script>
-    $(function () {
-      var Calendar = FullCalendar.Calendar;
-      var calendarEl = document.getElementById('calendar');
+  document.addEventListener('DOMContentLoaded', function() {
+    var Calendar = FullCalendar.Calendar;
+    var calendarEl = document.getElementById('calendar');
+    // Parse the JSON events data passed from Django
+    var events = JSON.parse('{{ events|safe }}')
 
-      var calendar = new Calendar(calendarEl, {
-        headerToolbar: {
-          left  : 'prev,next today',
-          center: 'title',
-          right : 'dayGridMonth,timeGridWeek,timeGridDay'
-        },
-        themeSystem: 'bootstrap',
-        // Events will need to be fetched from the database and populated here
-        events: [
-          // Example of adding an event with additional details:
-          { 
-            title: 'Consulta com Doutor X', 
-            start: '2024-04-10', 
-            end: '2024-04-10',
-            description: 'Consulta com X sla', // Custom property for additional details
-            // Other custom properties can be added here
-          }
-        ],
-        eventClick: function(info) {
-          // Use info.event to access the clicked event object
-          var eventObj = info.event;
-        
-          // Display event details in a modal or an alert
-          // For example, showing a Bootstrap modal with event details:
-          $('#eventDetailTitle').text(eventObj.title);
-          $('#eventDetailBody').html(`<p>Start: ${eventObj.start.toLocaleString()}</p><p>${eventObj.extendedProps.description}</p>`); // Using extendedProps to access custom properties
-          $('#eventDetailModal').modal('show');
-        },
-        editable  : false,
-        droppable : false, // this allows things to be dropped onto the calendar !!!
-      });
+    var calendar = new Calendar(calendarEl, {
+      locale: 'pt-br',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+      },
+      themeSystem: 'bootstrap',
+      events: events,
+      eventContent: function(arg) {
+        // Create a wrapper div
+        var containerElement = document.createElement('div');
+        containerElement.classList.add('custom-event-container');
+      
+        // Create the point element
+        var pointElement = document.createElement('span');
+        pointElement.classList.add('custom-event-point');
+      
+        // Create the title element
+        var titleElement = document.createElement('span');
+        titleElement.classList.add('custom-event-title');
+        titleElement.innerText = arg.event.title;
+      
+        // Append point and title to the container
+        containerElement.appendChild(pointElement);
+        containerElement.appendChild(titleElement);
+      
+        return { domNodes: [containerElement] };
+      },
+      eventClick: function(info) {
+        var eventObj = info.event;
+        var userFriendlyDate = new Date(eventObj.start).toLocaleString('pt-BR', {
+          weekday: 'long',  // "segunda-feira"
+          year: 'numeric',  // 2024
+          month: 'long',    // "abril"
+          day: 'numeric',   // 15
+          hour: '2-digit',  // 14
+          minute: '2-digit',// 00
+          hour12: false     // use 24-hour format
+        });
 
-      calendar.render();
+        $('#eventDetailTitle').text(eventObj.title);
+        $('#eventDetailBody').html(`<p>Data: ${userFriendlyDate}</p><p>${eventObj.extendedProps.description}</p>`);  // Using extendedProps to access custom properties
+        $('#eventDetailModal').modal('show');
+      },
+      editable: false,
+      droppable: false,
     });
+
+    calendar.render();
+  });
 </script>
 
 <!-- Event Details Modal -->
@@ -95,7 +114,7 @@
         </button>
       </div>
       <div class="modal-body" id="eventDetailBody">
-        <!-- Event details will be inserted here -->
+        <!-- Event details will be inserted dynamically here -->
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
@@ -103,4 +122,27 @@
     </div>
   </div>
 </div>
+</div>
+
+<style>
+.custom-event-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-event-point {
+  height: 10px;
+  width: 10px;
+  background-color: #3498db;
+  border-radius: 50%;
+  margin-right: 5px;
+  margin-left: 5px;
+}
+
+.custom-event-title {
+  font-weight: bold;
+  text-align: center;
+}
+</style>
 {% endblock body %}

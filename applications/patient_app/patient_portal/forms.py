@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
 from django.utils.translation import gettext_lazy as _
-from .models import CustomUser
+from .models import CustomUser, Appointment
 
 User = get_user_model()
 
@@ -96,3 +96,24 @@ class EditUserInfoForm(forms.ModelForm):
             user.save()
         return user
 
+class AppointmentForm(forms.ModelForm):
+    time_slot = forms.DateTimeField(input_formats=['%Y-%m-%dT%H:%M:%SZ'])
+
+    class Meta:
+        model = Appointment
+        fields = ['patient', 'professional_id', 'professional_name', 'profession', 'time_slot']
+
+    def clean_time_slot(self):
+        time_slot = self.cleaned_data.get('time_slot')
+        if time_slot:
+            # Convert to your preferred time zone if necessary, or just return the parsed time_slot
+            return time_slot
+        else:
+            raise forms.ValidationError("This field is required.")
+
+    def save(self, commit=True):
+        instance = super(AppointmentForm, self).save(commit=False)
+        instance.time = self.cleaned_data.get('time_slot')
+        if commit:
+            instance.save()
+        return instance
