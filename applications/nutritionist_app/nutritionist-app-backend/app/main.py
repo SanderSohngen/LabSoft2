@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from .routers import protected, public, external
+from .routers import protected, public, external, websocket
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -20,3 +20,4 @@ app.add_middleware(
 app.include_router(protected.router)
 app.include_router(public.router)
 app.include_router(external.router)
+app.include_router(websocket.router)

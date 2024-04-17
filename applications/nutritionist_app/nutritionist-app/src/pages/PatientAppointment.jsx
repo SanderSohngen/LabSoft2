@@ -8,7 +8,7 @@ import { useFetchPatients } from '../hooks/usePatient';
 
 function PatientAppointment() {
     const { patientId } = useParams();
-    const { data: patients, isLoading } = useFetchPatients("nutritionist");
+    const { data: patients, isLoading } = useFetchPatients();
     const [patientName, setPatientName] = useState("");
 
     useEffect(() => {
@@ -23,7 +23,7 @@ function PatientAppointment() {
         <Box flex="1" p={5}>
             <Text fontSize="4xl" mb={4} fontWeight="bold" color='gray'>Consulta com Paciente</Text>
             <VStack spacing={8} flex="1">
-                <Chat user={patientName} />
+                <Chat patientName={patientName} patientId={patientId} />
             </VStack>
         </Box>
     );
