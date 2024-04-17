@@ -10,7 +10,7 @@ const calculateEndTime = (startTime) => {
 };
 
 function Calendar() {
-  const { data, isLoading } = useFetchAppointments("nutritionist");
+  const { data, isLoading } = useFetchAppointments();
   const [events, setEvents] = useState([]);
 
   useEffect(() => {

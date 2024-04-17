@@ -7,7 +7,7 @@ import Loading from '../Loading/Loading';
 
 function NameSearch({ basePath }) {
   const [inputValue, setInputValue] = useState('');
-  const { data: patients, isLoading } = useFetchPatients("nutritionist");
+  const { data: patients, isLoading } = useFetchPatients();
   const [filteredNames, setFilteredNames] = useState([]);
   const navigate = useNavigate();
 
