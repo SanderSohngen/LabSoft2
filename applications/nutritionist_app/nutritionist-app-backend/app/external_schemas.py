@@ -1,6 +1,6 @@
 from datetime import datetime
-from typing import List, Optional
-from pydantic import BaseModel, HttpUrl
+from typing import Optional
+from pydantic import BaseModel
 
 
 class Patient(BaseModel):
@@ -14,7 +14,14 @@ class PatientDetail(Patient):
     height: int
     gender: str
     dietaryRestrictions: Optional[str] = None
-    notes: List[dict]
+    medical_observation: Optional[str] = None
+    nutritionist_observation: Optional[str] = None
+    personal_trainer_observation: Optional[str] = None
+    psychologist_observation: Optional[str] = None
+
+
+class Observation(BaseModel):
+    observation: str
 
 
 class Appointment(BaseModel):
@@ -22,15 +29,5 @@ class Appointment(BaseModel):
     datetime: datetime
 
 
-class DocumentUpload(BaseModel):
-    documentId: str
-    url: Optional[HttpUrl] = None
-
-
-class Document(DocumentUpload):
-    profession: str
-    uploaded: datetime
-
-
-class Observation(BaseModel):
-    observation: str
+class Document(BaseModel):
+    key: str
