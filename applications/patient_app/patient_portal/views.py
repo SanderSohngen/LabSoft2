@@ -117,6 +117,7 @@ def documents(request):
             profession_key = 'do Personal Trainer'
         
         if profession_key:
+            
             documents_by_profession[profession_key].append({
                 'id': doc.id,
                 'title': doc_details['key'],
@@ -130,47 +131,6 @@ def documents(request):
     return render(request, 'services/documents.html', {'documents': documents_by_profession})
 
 def download_document(request, title):
-
-    # Load environment variables from .env file
-    load_dotenv()
-
-    # Setup the S3 client
-    s3 = boto3.client(
-        "s3",
-        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-        region_name=os.getenv("AWS_REGION_NAME")
-    )
-
-    # Extract a safe title from the S3 key
-    safe_title = title.split('/')[-1]  # Assuming the filename is at the last position after splitting by '/'
-    print(f"Safe title: {safe_title}")
-    print("Original S3 key:", title)
-
-    # Define the file path in the temporary directory
-    temp_dir = tempfile.gettempdir()
-    file_path = os.path.join(temp_dir, f"{safe_title}")
-    print("File path:", file_path)
-
-    # Check if the file already exists and delete it if it does
-    if os.path.exists(file_path):
-        print("File already exists. Deleting old file.")
-        os.remove(file_path)
-    
-    try:
-        # Download the file from S3 to the temporary directory
-        print("Starting file download from S3...")
-        s3.download_file('vitalink', title, file_path)
-        print("File downloaded successfully.")
-
-        messages.success(request, 'Document downloaded successfully.')
-        return HttpResponseRedirect('/documents')
-    except Exception as e:
-        print(f"Error downloading file: {str(e)}")
-        messages.error(request, f"Failed to download document: {str(e)}")
-        return HttpResponseRedirect('/documents')
-    
-def download_document2(request, title):
     # Load environment variables
     load_dotenv()
 

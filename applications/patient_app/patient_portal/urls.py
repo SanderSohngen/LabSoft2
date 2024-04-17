@@ -21,7 +21,7 @@ urlpatterns = [
     path('documents/', views.documents, name='documents'),
     path('profile/', views.profile, name='profile'),
     path('profile/edit/', views.edit_profile, name='edit_profile'),
-    re_path(r'^documents/download/(?P<title>.+)/$', views.download_document2, name='download_document'),
+    re_path(r'^documents/download/(?P<title>.+)/$', views.download_document, name='download_document'),
     path('api/', include(router.urls)),
 ]
 

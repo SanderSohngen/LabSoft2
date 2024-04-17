@@ -1,5 +1,6 @@
 {% extends 'base/index.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block body %}
 <div class="content-wrapper">
@@ -34,16 +35,15 @@
                     <div class="card-header">
                       <h4 class="card-title w-100">
                         <a class="d-block w-100 collapsed" data-toggle="collapse" href="#collapse-{{ doc_type|slugify }}-{{ doc.id }}">
-                          {{ doc.title|default:"Documento sem título" }}
+                          {{ doc.title|get_filename }}
                         </a>
                       </h4>
                     </div>
                     <div id="collapse-{{ doc_type|slugify }}-{{ doc.id }}" class="collapse" data-parent="#accordion-{{ doc_type|slugify }}">
-                      <div class="card-body">
+                      <div class="card-body justify-content-center align-items-center">
                         <a href="{% url 'download_document' doc.title %}" class="btn btn-app">
                           <i class="fas fa-download"></i> Download
                         </a>
-                        <span> {{ doc.description|default:"Não há descrição disponível." }} </span>
                       </div>
                     </div>
                   </div>
