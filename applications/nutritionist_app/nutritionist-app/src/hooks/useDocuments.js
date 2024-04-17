@@ -16,3 +16,11 @@ export const usePostDocument = (patientId) => {
     mutationFn: (documentData) => documentService.postDocument(patientId, documentData, user.access_token)
   });
 };
+
+export const useDownloadDocument = () => {
+  const { user } = useAuth();
+  return useMutation({
+    mutationFn: ({ patientId, filename }) =>
+      documentService.downloadDocument(patientId, filename, user.access_token),
+  });
+};
