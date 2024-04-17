@@ -146,3 +146,10 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
     ]
 }
+
+# Configure static and media file storage using S3
+AWS_ACCESS_KEY_ID = 'AKIA47CRYE4RRP24WUXT'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'vitalink'
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
