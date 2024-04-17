@@ -305,6 +305,13 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
 class CustomProfessionalViewSet(ViewSet):
 
+    profession_mapping = {
+        'nutritionist': 'Nutricionista',
+        'psychologist': 'Psicólogo',
+        'personal_trainer': 'Personal Trainer',
+        'medic': 'Médico'
+    }
+
     @swagger_auto_schema(
         method='get',
         responses={200: CustomPatientSerializer(many=True)},
@@ -312,11 +319,13 @@ class CustomProfessionalViewSet(ViewSet):
     )
     @action(detail=False, url_path='(?P<profession>[^/.]+)/(?P<professional_id>\d+)/patients')
     def professional_patients(self, request, profession, professional_id):
+        profession_in_db = self.profession_mapping.get(profession.lower())
+        print(profession_in_db)
         try:
             # Use the correct related_name 'patient_appointments' in the query
             patients = CustomUser.objects.filter(
                 patient_appointments__professional_id=professional_id,
-                patient_appointments__profession=profession
+                patient_appointments__profession=profession_in_db
             ).distinct()
             serializer = CustomPatientSerializer(patients, many=True)
             return Response(serializer.data)
@@ -327,13 +336,6 @@ class CustomProfessionalViewSet(ViewSet):
             # logger.error('Unexpected error occurred', exc_info=e)
             return Response({'error': str(e)}, status=500)
         
-    profession_mapping = {
-        'nutritionist': 'Nutricionista',
-        'psychologist': 'Psicólogo',
-        'personal_trainer': 'Personal Trainer',
-        'medic': 'Médico'
-        }
-
     @swagger_auto_schema(
         method='get',
         responses={200: CustomAppointmentSerializer(many=True)},
@@ -343,7 +345,6 @@ class CustomProfessionalViewSet(ViewSet):
     def professional_appointments(self, request, profession, professional_id):
         # Map the URL profession parameter to the database value
         profession_in_db = self.profession_mapping.get(profession.lower())
-        print(profession_in_db)
 
         # If the profession is not in the mapping, return a 404 response
         if not profession_in_db:
@@ -352,7 +353,10 @@ class CustomProfessionalViewSet(ViewSet):
         appointments = Appointment.objects.filter(
             professional_id=professional_id,
             profession=profession_in_db
-        ).distinct()
+        )
+        for appointment in appointments:
+            appointment.time = appointment.time+timezone.timedelta(hours=3)
+        
         serializer = CustomAppointmentSerializer(appointments, many=True)
         return Response(serializer.data)
 
