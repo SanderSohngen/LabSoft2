@@ -28,7 +28,7 @@ from drf_yasg.utils import swagger_auto_schema
 
 def download_pdf(request, atl_id, user_id, file_name):
 
-    key = atl_id+"/psychologist/"+user_id+"/"+file_name
+    key = atl_id+"/medic/"+user_id+"/"+file_name
     try:
         object_data = search_from_s3(key)
         # Retorna o conteúdo do arquivo PDF como uma resposta HTTP
@@ -179,7 +179,7 @@ def agenda(request):
 
     events = list()
     for ap in appointments:
-        if ap['profession'] == 'Psicólogo' and ap['professional_id'] == request.user.id:
+        if ap['profession'] == 'Médico' and ap['professional_id'] == request.user.id:
             patient_id = ap['patient_id']
 
             patient_data = requests.get(base_endpoint+"patients/"+str(patient_id)+"/details/").json()
@@ -287,7 +287,7 @@ def atletas(request):
 
     athletes = list()
     for ap in appointments:
-        if ap['profession'] == 'Psicólogo' and ap['professional_id'] == request.user.id:
+        if ap['profession'] == 'Médico' and ap['professional_id'] == request.user.id:
             patient_id = ap['patient_id']
 
             patient_data = requests.get(base_endpoint+"patients/"+str(patient_id)+"/details/").json()
@@ -317,18 +317,18 @@ def atletas(request):
     )
 
 def perfil_atleta(request, atl_id):
-    documents = requests.get(base_endpoint+"patients/"+str(atl_id)+"/psychologist/"+str(request.user.id)+"/getdocuments/").json()
+    documents = requests.get(base_endpoint+"patients/"+str(atl_id)+"/medic/"+str(request.user.id)+"/getdocuments/").json()
     if request.method == 'POST':
         # Verifica se o campo de arquivo foi enviado e não está vazio
         if 'file' in request.FILES and request.FILES['file']:
             file_obj = request.FILES['file']
-            key = str(atl_id)+"/psychologist/"+str(request.user.id)+"/"+file_obj.name
+            key = str(atl_id)+"/medic/"+str(request.user.id)+"/"+file_obj.name
             
             # post to patient API
             data = {'key': key}
             json_data = json.dumps(data)
             headers = {'Content-Type': 'application/json'}
-            url = base_endpoint +"patients/"+ str(atl_id)+"/psychologist/"+str(request.user.id)+"/postdocuments/"
+            url = base_endpoint +"patients/"+ str(atl_id)+"/medic/"+str(request.user.id)+"/postdocuments/"
             response = requests.post(url, data=json_data, headers=headers)
             print("Response de envio de arquivo:", response)
             upload_to_s3(file_obj, key) #TODO automatizar upload de arquivo
@@ -337,7 +337,7 @@ def perfil_atleta(request, atl_id):
             data = {'observation': content}
             json_data = json.dumps(data)
             headers = {'Content-Type': 'application/json'}
-            url = base_endpoint +"patients/"+ str(atl_id)+"/psychologist/"+str(request.user.id)+"/observation/"
+            url = base_endpoint +"patients/"+ str(atl_id)+"/medic/"+str(request.user.id)+"/observation/"
             response = requests.post(url, data=json_data, headers=headers)
 
     atl_data = requests.get(base_endpoint+"patients/"+str(atl_id)+"/details/").json()
