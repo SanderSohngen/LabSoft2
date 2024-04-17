@@ -241,7 +241,7 @@ def atletas(request):
 
     athletes = list()
     for ap in appointments:
-        if ap['profession'] == 'personal trainer' and ap['professional_id'] == request.user.id:
+        if ap['profession'] == 'Psicologo' and ap['professional_id'] == request.user.id:
             patient_id = ap['patient_id']
 
             patient_data = requests.get(base_endpoint+"patients/"+str(patient_id)+"/details/").json()
