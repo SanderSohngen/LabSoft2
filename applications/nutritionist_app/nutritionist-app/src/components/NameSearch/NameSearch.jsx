@@ -7,7 +7,7 @@ import Loading from '../Loading/Loading';
 
 function NameSearch({ basePath }) {
   const [inputValue, setInputValue] = useState('');
-  const { data: patients, isLoading } = useFetchPatients("nutritionist");
+  const { data: patients, isLoading } = useFetchPatients();
   const [filteredNames, setFilteredNames] = useState([]);
   const navigate = useNavigate();
 
@@ -35,7 +35,7 @@ function NameSearch({ basePath }) {
       />
       {inputValue && (
         <List>
-          {filteredNames.length > 0 ? (
+          {filteredNames?.length > 0 ? (
             filteredNames.map((patient) => (
               <ListItem key={patient.id} cursor="pointer" onClick={() => handleSelectName(patient.id)}>
                 {patient.name}
