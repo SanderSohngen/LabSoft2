@@ -1,5 +1,5 @@
 from django.db import IntegrityError
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, HttpResponse, FileResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -10,16 +10,14 @@ import json
 import boto3
 import tempfile
 import os
-
-from django.http import StreamingHttpResponse
-from botocore.exceptions import NoCredentialsError, PartialCredentialsError, ClientError
+from dotenv import load_dotenv
 
 from .forms import CustomUserCreationForm, EditUserInfoForm, AppointmentForm
 
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
-from rest_framework import generics, viewsets
+from rest_framework import viewsets
 
 from .models import CustomUser, Appointment, Document
 from .serializers import (CustomUserSerializer, AppointmentSerializer, DocumentSerializer, 
@@ -132,40 +130,77 @@ def documents(request):
     return render(request, 'services/documents.html', {'documents': documents_by_profession})
 
 def download_document(request, title):
+
+    # Load environment variables from .env file
+    load_dotenv()
+
     # Setup the S3 client
     s3 = boto3.client(
         "s3",
+        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+        region_name=os.getenv("AWS_REGION_NAME")
     )
-    
+
     # Extract a safe title from the S3 key
     safe_title = title.split('/')[-1]  # Assuming the filename is at the last position after splitting by '/'
-    
+    print(f"Safe title: {safe_title}")
+    print("Original S3 key:", title)
+
     # Define the file path in the temporary directory
-    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=f"_{safe_title}")  # Ensure unique temp file creation
-    temp_file_path = temp_file.name  # Store the full path of the temp file
+    temp_dir = tempfile.gettempdir()
+    file_path = os.path.join(temp_dir, f"{safe_title}")
+    print("File path:", file_path)
 
-    try:
-        # Download the file from S3 to the temporary file
-        s3.download_file('vitalink', title, temp_file_path)
-
-        # Serve the file directly to the user
-        response = FileResponse(open(temp_file_path, 'rb'), as_attachment=True, filename=safe_title)
-        response['Content-Disposition'] = f'attachment; filename="{safe_title}"'
-
-        # Add success message with the file path information
-        messages.success(request, f'Document "{safe_title}" downloaded successfully to your browser.')
-        
-        # Schedule the temporary file for deletion after response
-        os.unlink(temp_file_path)
-
-        return response
+    # Check if the file already exists and delete it if it does
+    if os.path.exists(file_path):
+        print("File already exists. Deleting old file.")
+        os.remove(file_path)
     
+    try:
+        # Download the file from S3 to the temporary directory
+        print("Starting file download from S3...")
+        s3.download_file('vitalink', title, file_path)
+        print("File downloaded successfully.")
+
+        messages.success(request, 'Document downloaded successfully.')
+        return HttpResponseRedirect('/documents')
     except Exception as e:
-        # If something goes wrong, delete the temporary file immediately
-        os.unlink(temp_file_path)
+        print(f"Error downloading file: {str(e)}")
         messages.error(request, f"Failed to download document: {str(e)}")
         return HttpResponseRedirect('/documents')
+    
+def download_document2(request, title):
+    # Load environment variables
+    load_dotenv()
 
+    # Initialize S3 client
+    s3 = boto3.client(
+        "s3",
+        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+        region_name=os.getenv("AWS_REGION_NAME")
+    )
+
+    # Extract a safe file name
+    safe_title = title.split('/')[-1]
+
+    try:
+        # Generate a pre-signed URL for the S3 object
+        response = s3.generate_presigned_url('get_object',
+                                            Params={'Bucket': 'vitalink',
+                                                    'Key': title},
+                                            ExpiresIn=3600)  # Link expires in 1 hour
+
+        messages.success(request, 'Document downloaded successfully.')
+        # Redirect user to the pre-signed URL for direct file download
+        return redirect(response)
+    except Exception as e:
+        messages.error(request, f"Failed to download document: {str(e)}")
+        # Log the error and return an error message
+        print(f"Error generating pre-signed URL: {str(e)}")
+        return HttpResponse(f"Failed to generate download link: {str(e)}", status=500)
+    
 def profile(request):
     return render(request, 'services/profile.html') 
 

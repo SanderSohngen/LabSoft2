@@ -3,3 +3,4 @@ djangorestframework
 drf-yasg
 requests
 boto3
+python-dotenv

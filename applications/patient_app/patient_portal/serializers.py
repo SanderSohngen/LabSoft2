@@ -40,7 +40,7 @@ class CustomPatientSerializer(serializers.ModelSerializer):
         fields = ('id', 'name') 
 
 class CustomAppointmentSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='full_name')
+    name = serializers.CharField(source='patient.full_name')
     datetime = serializers.DateTimeField(source='time')
 
     class Meta:
@@ -62,13 +62,13 @@ class CustomPatientDetailSerializer(serializers.ModelSerializer):
                   'personal_trainer_observation', 'psychologist_observation')
 
 class CustomDocumentSerializer(serializers.ModelSerializer):
-    key = serializers.CharField()
+    key = serializers.SerializerMethodField()
 
     class Meta:
         model = Document
         fields = ('key',)
 
-    def get_ket(self, obj):
+    def get_key(self, obj):
         # Parse the JSON stored in object_tag and return the documentId
         if obj.object_tag:
             object_tag = json.loads(obj.object_tag)
@@ -81,7 +81,6 @@ class CustomObservationSerializer(serializers.Serializer):
 
 class CustomDocumentPostSerializer(serializers.ModelSerializer):
     key = serializers.CharField(write_only=True)
-    #url = serializers.URLField(write_only=True)
 
     class Meta:
         model = Document
@@ -90,7 +89,6 @@ class CustomDocumentPostSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         object_tag = json.dumps({
             "key": validated_data['key'],
-            #"url": validated_data['url']
         })
 
         document = Document(
