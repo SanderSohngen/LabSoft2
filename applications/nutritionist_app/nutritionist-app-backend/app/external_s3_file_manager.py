@@ -3,18 +3,17 @@ import boto3
 from typing import List
 from fastapi import UploadFile, File
 
-from .models import User
 from .external_schemas import Document
 
 
 def upload_doc_to_s3(
     patient_id: int,
-    user: User,
+    user_id: int,
     s3_client: boto3.client,
     bucket_name: str = "vitalink",
     file: UploadFile = File(...),
 ) -> Document:
-    key = f"{1}/nutritionist/{3}/{file.filename}"
+    key = f"{patient_id}/nutritionist/{user_id}/{file.filename}"
     s3_client.put_object(
         Body=file.file.read(),
         Bucket=bucket_name,

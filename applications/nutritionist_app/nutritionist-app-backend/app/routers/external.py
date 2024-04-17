@@ -29,8 +29,6 @@ router = APIRouter()
 load_dotenv()
 EXTERNAL_API_URL = os.getenv("EXTERNAL_BASE_URL")
 PROFESSION = "nutritionist"
-PROFESSIONAL_ID = 3
-PATIENT_ID = 1
 
 
 @router.get(
@@ -42,7 +40,7 @@ async def get_patients(
     client: AsyncClient = Depends(get_client)
 ) -> List[Patient]:
     response = await client.get(
-        f"{EXTERNAL_API_URL}/professionals/{PROFESSION}/{PROFESSIONAL_ID}/patients/"
+        f"{EXTERNAL_API_URL}/professionals/{PROFESSION}/{user.id}/patients/"
     )
     if response.status_code != 200:
         raise HTTPException(
@@ -64,7 +62,7 @@ async def get_appointments(
     client: AsyncClient = Depends(get_client)
 ) -> List[Appointment]:
     response = await client.get(
-        f"{EXTERNAL_API_URL}/professionals/{PROFESSION}/{PROFESSIONAL_ID}/appointments/"
+        f"{EXTERNAL_API_URL}/professionals/{PROFESSION}/{user.id}/appointments/"
     )
     if response.status_code != 200:
         raise HTTPException(
@@ -87,7 +85,7 @@ async def get_patient_details(
     client: AsyncClient = Depends(get_client)
 ) -> PatientDetail:
     response = await client.get(
-        f"{EXTERNAL_API_URL}/patients/{PATIENT_ID}/details/"
+        f"{EXTERNAL_API_URL}/patients/{patient_id}/details/"
     )
     if response.status_code != 200:
         raise HTTPException(
@@ -109,7 +107,7 @@ async def post_observation(
     client: AsyncClient = Depends(get_client)
 ) -> dict:
     response = await client.post(
-        f"{EXTERNAL_API_URL}/patients/{PATIENT_ID}/{PROFESSION}/{PROFESSIONAL_ID}/observation/",
+        f"{EXTERNAL_API_URL}/patients/{patient_id}/{PROFESSION}/{user.id}/observation/",
         json={"observation": observation_data.observation}
     )
     if response.status_code != 200:
@@ -126,12 +124,11 @@ async def post_observation(
 )
 async def get_documents(
     patient_id: int,
-    # user: User = Depends(get_current_user),
+    user: User = Depends(get_current_user),
     client: AsyncClient = Depends(get_client),
-    s3_client: boto3.client = Depends(get_s3_client)
 ) -> List[Document]:
     response = await client.get(
-        f"{EXTERNAL_API_URL}/patients/{PATIENT_ID}/{PROFESSION}/{PROFESSIONAL_ID}/getdocuments/"
+        f"{EXTERNAL_API_URL}/patients/{patient_id}/{PROFESSION}/{user.id}/getdocuments/"
     )
     if response.status_code != 200:
         raise HTTPException(
@@ -180,12 +177,12 @@ async def post_documents(
 
     document_data = upload_doc_to_s3(
         patient_id=patient_id,
-        user=user,
+        user_id=user.id,
         s3_client=s3_client,
         file=file
     )
     response = await client.post(
-        f"{EXTERNAL_API_URL}/patients/{PATIENT_ID}/{PROFESSION}/{PROFESSIONAL_ID}/postdocuments/",
+        f"{EXTERNAL_API_URL}/patients/{patient_id}/{PROFESSION}/{user.id}/postdocuments/",
         json=document_data.model_dump()
     )
     if response.status_code != 201:
