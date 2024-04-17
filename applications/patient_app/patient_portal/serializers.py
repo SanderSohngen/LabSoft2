@@ -34,13 +34,13 @@ class DocumentSerializer(serializers.ModelSerializer):
         read_only_fields = ('id',)
 
 class CustomPatientSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='patient.full_name', read_only=True)
+    name = serializers.CharField(source='full_name')
     class Meta:
         model = CustomUser
         fields = ('id', 'name') 
 
 class CustomAppointmentSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='patient.full_name', read_only=True)
+    name = serializers.CharField(source='full_name')
     datetime = serializers.DateTimeField(source='time')
 
     class Meta:
