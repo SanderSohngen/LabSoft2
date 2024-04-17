@@ -34,9 +34,10 @@ class DocumentSerializer(serializers.ModelSerializer):
         read_only_fields = ('id',)
 
 class CustomPatientSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='patient.full_name', read_only=True)
     class Meta:
         model = CustomUser
-        fields = ('id', 'full_name')  # Adjust 'full_name' as needed
+        fields = ('id', 'name') 
 
 class CustomAppointmentSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='patient.full_name', read_only=True)
@@ -52,49 +53,44 @@ class CustomPatientDetailSerializer(serializers.ModelSerializer):
     nutritionist_observation = serializers.CharField()
     personal_trainer_observation = serializers.CharField()
     psychologist_observation = serializers.CharField()
+    name = serializers.CharField(source='full_name', read_only=True)
 
     class Meta:
         model = CustomUser
-        fields = ('id', 'full_name', 'age', 'weight', 'height', 'gender',
+        fields = ('id', 'name', 'age', 'weight', 'height', 'gender',
                   'dietary_restrictions', 'medical_observation', 'nutritionist_observation',
                   'personal_trainer_observation', 'psychologist_observation')
 
 class CustomDocumentSerializer(serializers.ModelSerializer):
-    documentId = serializers.SerializerMethodField()
-    url = serializers.SerializerMethodField()
+    key = serializers.CharField()
 
     class Meta:
         model = Document
-        fields = ('documentId', 'profession', 'url')
+        fields = ('key',)
 
-    def get_documentId(self, obj):
+    def get_ket(self, obj):
         # Parse the JSON stored in object_tag and return the documentId
         if obj.object_tag:
             object_tag = json.loads(obj.object_tag)
-            return object_tag.get('documentId')
+            return object_tag.get('key')
         return None
 
-    def get_url(self, obj):
-        # Parse the JSON stored in object_tag and return the URL
-        if obj.object_tag:
-            object_tag = json.loads(obj.object_tag)
-            return object_tag.get('url')
-        return None
+    
 class CustomObservationSerializer(serializers.Serializer):
     observation = serializers.CharField()
 
 class CustomDocumentPostSerializer(serializers.ModelSerializer):
-    documentId = serializers.CharField(write_only=True)
-    url = serializers.URLField(write_only=True)
+    key = serializers.CharField(write_only=True)
+    #url = serializers.URLField(write_only=True)
 
     class Meta:
         model = Document
-        fields = ('documentId', 'url')
+        fields = ('key',)
 
     def create(self, validated_data):
         object_tag = json.dumps({
-            "documentId": validated_data['documentId'],
-            "url": validated_data['url']
+            "key": validated_data['key'],
+            #"url": validated_data['url']
         })
 
         document = Document(

@@ -81,7 +81,10 @@
       },
       eventClick: function(info) {
         var eventObj = info.event;
-        var userFriendlyDate = new Date(eventObj.start).toLocaleString('pt-BR', {
+        var eventStart = new Date(eventObj.start.valueOf() - (eventObj.start.getTimezoneOffset() * 60000));
+        eventStart.setHours(eventStart.getHours() + 6); // Adjust for timezone difference explicitly
+
+        var userFriendlyDate = eventStart.toLocaleString('pt-BR', {
           weekday: 'long',  // "segunda-feira"
           year: 'numeric',  // 2024
           month: 'long',    // "abril"
@@ -90,7 +93,6 @@
           minute: '2-digit',// 00
           hour12: false     // use 24-hour format
         });
-
         $('#eventDetailTitle').text(eventObj.title);
         $('#eventDetailBody').html(`<p>Data: ${userFriendlyDate}</p><p>${eventObj.extendedProps.description}</p>`);  // Using extendedProps to access custom properties
         $('#eventDetailModal').modal('show');

@@ -35,6 +35,7 @@ class CustomUser(AbstractUser):
         related_name="customuser_set",
         related_query_name="customuser",
     )
+    
     user_permissions = models.ManyToManyField(
         Permission,
         verbose_name=_('user permissions'),

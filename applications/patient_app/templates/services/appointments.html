@@ -50,28 +50,28 @@
                     <td>
                       <div class="d-flex justify-content-center"> 
                         <!-- Button trigger modal -->
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-edit-{{ professional.id }}">
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-edit-{{ professional.id }}-{{ professional.type|slugify }}">
                           <i class="fa-solid fa-pen-to-square"></i> Consultar agenda
                         </button>
                       </div>
 
                       <!-- Modal -->
-                      <div class="modal fade" id="modal-edit-{{ professional.id }}" tabindex="-1" role="dialog" aria-labelledby="modalTitle-{{ professional.id }}" aria-hidden="true">
+                      <div class="modal fade" id="modal-edit-{{ professional.id }}-{{ professional.type|slugify }}" tabindex="-1" role="dialog" aria-labelledby="modalTitle-{{ professional.id }}-{{ professional.type|slugify }}" aria-hidden="true">
                         <div class="modal-dialog modal-lg" role="document">
                           <div class="modal-content">
                             <div class="modal-header">
-                              <h4 class="modal-title" id="modalTitle-{{ professional.id }}">Agendas disponíveis</h4>
+                              <h4 class="modal-title" id="modalTitle-{{ professional.id }}-{{ professional.type|slugify }}">Agendas disponíveis</h4>
                               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                               </button>
                             </div>
                             <div class="modal-body">
                               <!-- Certifique-se de que a ação do formulário seja sua URL de endpoint desejada para POST -->
-                              <form id="booking-form-{{ professional.id }}" method="post" action="{% url 'appointments' %}">
+                              <form id="booking-form-{{ professional.id }}-{{ professional.type|slugify }}" method="post" action="{% url 'appointments' %}">
                                 {% csrf_token %}
                                 <div class="form-group">
-                                  <label for="time-slot-select-{{ professional.id }}">Escolha um horário:</label>
-                                  <select id="time-slot-select-{{ professional.id }}" class="form-control time-slot-select" name="time_slot" required>
+                                  <label for="time-slot-select-{{ professional.id }}-{{ professional.type|slugify }}">Escolha um horário:</label>
+                                  <select id="time-slot-select-{{ professional.id }}-{{ professional.type|slugify }}" class="form-control time-slot-select" name="time_slot" required>
                                     <option value="">Selecione um horário</option>
                                     {% for slot in professional.time_slots %}
                                       <option value="{{ slot }}" data-raw-slot="{{ slot }}">{{ slot }}</option>
@@ -91,7 +91,7 @@
                             <div class="modal-footer">
                               <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
                               <!-- O form attribute no botão deve corresponder ao id do form -->
-                              <button type="submit" class="btn btn-success" form="booking-form-{{ professional.id }}">Agendar</button>
+                              <button type="submit" class="btn btn-success" form="booking-form-{{ professional.id }}-{{ professional.type|slugify }}">Agendar</button>
                             </div>
                           </div>
                         </div>
@@ -131,6 +131,7 @@
         if (option.value) {
           var rawSlot = option.getAttribute('data-raw-slot');
           var date = new Date(rawSlot);
+          //date.setHours(date.getHours() + 3);
           var userFriendlyDate = date.toLocaleString('pt-BR', {
             weekday: 'long', // "segunda-feira"
             year: 'numeric', // 2024

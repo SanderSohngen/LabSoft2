@@ -1,12 +1,18 @@
 from django.db import IntegrityError
 from django.shortcuts import render
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, FileResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 import requests
 from django.utils import timezone
 from datetime import datetime
 import json
+import boto3
+import tempfile
+import os
+
+from django.http import StreamingHttpResponse
+from botocore.exceptions import NoCredentialsError, PartialCredentialsError, ClientError
 
 from .forms import CustomUserCreationForm, EditUserInfoForm, AppointmentForm
 
@@ -48,6 +54,7 @@ def dashboard(request):
 
 def appointments(request):
     professionals = get_professionals()
+    print(professionals)
     if request.method == 'POST':
         form = AppointmentForm(request.POST)
         print(request.POST)
@@ -59,7 +66,7 @@ def appointments(request):
         else:
             print(form.errors)
             messages.error(request, 'Failed to create appointment.')
-            return render(request, 'services/appointments.html', {'professionals': professionals, })
+            return render(request, 'services/appointments.html', {'professionals': professionals})
     else:
         return render(request, 'services/appointments.html', {'professionals': professionals})
 
@@ -114,7 +121,7 @@ def documents(request):
         if profession_key:
             documents_by_profession[profession_key].append({
                 'id': doc.id,
-                'title': doc_details['title'],
+                'title': doc_details['key'],
                 'url': doc_details['url'],
                 'description': doc_details['description']
             })
@@ -123,6 +130,41 @@ def documents(request):
     # Or if you need to do further processing, pass the processed dictionary
     print(documents_by_profession)
     return render(request, 'services/documents.html', {'documents': documents_by_profession})
+
+def download_document(request, title):
+    # Setup the S3 client
+    s3 = boto3.client(
+        "s3",
+    )
+    
+    # Extract a safe title from the S3 key
+    safe_title = title.split('/')[-1]  # Assuming the filename is at the last position after splitting by '/'
+    
+    # Define the file path in the temporary directory
+    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=f"_{safe_title}")  # Ensure unique temp file creation
+    temp_file_path = temp_file.name  # Store the full path of the temp file
+
+    try:
+        # Download the file from S3 to the temporary file
+        s3.download_file('vitalink', title, temp_file_path)
+
+        # Serve the file directly to the user
+        response = FileResponse(open(temp_file_path, 'rb'), as_attachment=True, filename=safe_title)
+        response['Content-Disposition'] = f'attachment; filename="{safe_title}"'
+
+        # Add success message with the file path information
+        messages.success(request, f'Document "{safe_title}" downloaded successfully to your browser.')
+        
+        # Schedule the temporary file for deletion after response
+        os.unlink(temp_file_path)
+
+        return response
+    
+    except Exception as e:
+        # If something goes wrong, delete the temporary file immediately
+        os.unlink(temp_file_path)
+        messages.error(request, f"Failed to download document: {str(e)}")
+        return HttpResponseRedirect('/documents')
 
 def profile(request):
     return render(request, 'services/profile.html') 
@@ -154,9 +196,10 @@ def edit_profile(request):
 
 def professional_union():
     urls = [
-        'http://ec2-54-152-228-191.compute-1.amazonaws.com:8000/users/time_slots/',
+        'http://ec2-54-152-228-191.compute-1.amazonaws.com:8000/users/time_slots/', #nutritionist
+        'http://ec2-54-233-193-209.sa-east-1.compute.amazonaws.com:8000/api/users/time_slots/', #personal trainer
     ]
-    professional_types = ['Nutricionista', 'Médico', 'Psicólogo', 'Personal Trainer']
+    professional_types = ['Nutricionista', 'Personal Trainer', 'Médico', 'Psicólogo']
     all_professionals = []
 
     # Function to translate day numbers to day names
@@ -186,10 +229,10 @@ def professional_union():
 def get_professionals():
     professionals = professional_union()
     url_mappings = {
-        'Nutricionista': 'http://ec2-54-152-228-191.compute-1.amazonaws.com:8000/time_slots/',
+        'Nutricionista': 'http://ec2-54-152-228-191.compute-1.amazonaws.com:8000/time_slots/', # Nutricionista
+        'Personal Trainer': 'http://ec2-54-233-193-209.sa-east-1.compute.amazonaws.com:8000/api/time_slots/', # Personal Trainer
         # Add other mappings as needed
     }
-
     # Function to correct and verify time format
     def fix_time_format(time_string):
         try:
@@ -237,15 +280,15 @@ def get_document_details(document):
         # Assuming object_tag is a JSON field with 'url' and 'description' keys
         details = json.loads(document.object_tag)
         return {
-            'url': details.get('url', ''),
+            'url': details.get('url', 'No url available.'),
             'description': details.get('description', 'No description available.'),
-            'title': details.get('documentId', 'Unnamed Document')
+            'key': details.get('key', 'Unnamed Document')
         }
     except json.JSONDecodeError:
         return {
             'url': '',
             'description': 'Invalid document details.',
-            'title': 'Unnamed Document'
+            'key': 'Unnamed Document'
         }
     
 #API CALLS (URRESTRICTED ACCESS TO SIMPLIFY THE PROCESS)
@@ -366,8 +409,7 @@ class CustomPatientViewSet(ViewSet):
             try:
                 document = serializer.save()
                 return Response({
-                    "documentId": serializer.validated_data['documentId'], 
-                    "url": serializer.validated_data['url'],
+                    "key": serializer.validated_data['key'], 
                     "message": "Document created successfully"
                 }, status=201)
             except IntegrityError as e:

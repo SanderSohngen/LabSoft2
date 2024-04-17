@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
@@ -21,6 +21,7 @@ urlpatterns = [
     path('documents/', views.documents, name='documents'),
     path('profile/', views.profile, name='profile'),
     path('profile/edit/', views.edit_profile, name='edit_profile'),
+    re_path(r'^documents/download/(?P<title>.+)/$', views.download_document, name='download_document'),
     path('api/', include(router.urls)),
 ]
 
