@@ -16,7 +16,31 @@ function PatientEvaluation() {
 
     useEffect(() => {
         if (patient) {
-            const { notes, ...info } = patient;
+            const {
+                medical_observation,
+                nutritionist_observation,
+                personal_trainer_observation,
+                psychologist_observation,
+                ...info
+            } = patient;
+            const notes = [
+                {
+                    "professional": "Nutricionista",
+                    "evaluation": nutritionist_observation
+                },
+                {
+                    "professional": "Médico",
+                    "evaluation": medical_observation
+                },
+                {
+                    "professional": "Personal Trainer",
+                    "evaluation": personal_trainer_observation
+                },
+                {
+                    "professional": "Psicólogo",
+                    "evaluation": psychologist_observation
+                },
+            ]
             setPatientInfo(info);
             setPatientNotes(notes);
         }
@@ -31,7 +55,7 @@ function PatientEvaluation() {
                 <VStack spacing={8}>
                     <PatientCard {...patientInfo} />
                     <ExtraInfoAccordion info={patientNotes} />
-                    <InputEvaluation />
+                    <InputEvaluation patientId={patientId} />
                 </VStack>
             </VStack>
         </Flex>
