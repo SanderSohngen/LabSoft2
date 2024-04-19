@@ -8,10 +8,7 @@
     <div class="container">
       <div class="row mb-2">
         <div class="col-sm-6">
-          <h1 class="m-0"> Portal do Paciente </h1>
-        </div><!-- /.col -->
-        <div class="col-sm-6">
-    
+          <h1 class="m-0"> Agendamentos </h1>
         </div><!-- /.col -->
       </div><!-- /.row -->
     </div><!-- /.container-fluid -->
@@ -22,61 +19,95 @@
   <div class="content">
     <div class="container">
       <div class="row">
-        <div class="col-lg-6">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-
-              <p class="card-text">
-                Some quick example text to build on the card title and make up the bulk of the card's
-                content.
-              </p>
-
-              <a href="#" class="card-link">Card link</a>
-              <a href="#" class="card-link">Another link</a>
-            </div>
-          </div>
-
-          <div class="card card-primary card-outline">
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-
-              <p class="card-text">
-                Some quick example text to build on the card title and make up the bulk of the card's
-                content.
-              </p>
-              <a href="#" class="card-link">Card link</a>
-              <a href="#" class="card-link">Another link</a>
-            </div>
-          </div><!-- /.card -->
-        </div>
-        <!-- /.col-md-6 -->
-        <div class="col-lg-6">
+        <div class="col-12">
           <div class="card">
             <div class="card-header">
-              <h5 class="card-title m-0">Featured</h5>
+              <h3 class="card-title">Profissionais disponíveis</h3>
             </div>
+            <!-- /.card-header -->
             <div class="card-body">
-              <h6 class="card-title">Special title treatment</h6>
+              <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Profissional</th>
+                  <th>Email</th>
+                  <th>Dias da Semana</th>
+                  <th>Ação</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for professional in professionals %}
+                  <tr>
+                    <td>{{ professional.name }}</td>
+                    <td>{{ professional.type }}</td>
+                    <td>{{ professional.email }}</td>
+                    <td>
+                      {% for day in professional.days_available %}
+                        {{ day }}, 
+                      {% endfor %}
+                    </td>
+                    <td>
+                      <div class="d-flex justify-content-center"> 
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-edit-{{ professional.id }}-{{ professional.type|slugify }}">
+                          <i class="fa-solid fa-pen-to-square"></i> Consultar agenda
+                        </button>
+                      </div>
 
-              <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-              <a href="#" class="btn btn-primary">Go somewhere</a>
+                      <!-- Modal -->
+                      <div class="modal fade" id="modal-edit-{{ professional.id }}-{{ professional.type|slugify }}" tabindex="-1" role="dialog" aria-labelledby="modalTitle-{{ professional.id }}-{{ professional.type|slugify }}" aria-hidden="true">
+                        <div class="modal-dialog modal-lg" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h4 class="modal-title" id="modalTitle-{{ professional.id }}-{{ professional.type|slugify }}">Agendas disponíveis</h4>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                              <!-- Certifique-se de que a ação do formulário seja sua URL de endpoint desejada para POST -->
+                              <form id="booking-form-{{ professional.id }}-{{ professional.type|slugify }}" method="post" action="{% url 'appointments' %}">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                  <label for="time-slot-select-{{ professional.id }}-{{ professional.type|slugify }}">Escolha um horário:</label>
+                                  <select id="time-slot-select-{{ professional.id }}-{{ professional.type|slugify }}" class="form-control time-slot-select" name="time_slot" required>
+                                    <option value="">Selecione um horário</option>
+                                    {% for slot in professional.time_slots %}
+                                      <option value="{{ slot }}" data-raw-slot="{{ slot }}">{{ slot }}</option>
+                                    {% empty %}
+                                      <option value="" disabled>Não há horários disponíveis.</option>
+                                    {% endfor %}
+                                  </select>
+                                </div>
+
+                                <!-- Hidden fields to send additional data -->
+                                <input type="hidden" name="patient" value="{{ user.id }}" />
+                                <input type="hidden" name="professional_id" value="{{ professional.id }}" />
+                                <input type="hidden" name="profession" value="{{ professional.type }}" />
+                                <input type="hidden" name="professional_name" value="{{ professional.name }}"/>
+                              </form>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                              <!-- O form attribute no botão deve corresponder ao id do form -->
+                              <button type="submit" class="btn btn-success" form="booking-form-{{ professional.id }}-{{ professional.type|slugify }}">Agendar</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- End Modal -->
+                    </td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+              </table>
             </div>
+            <!-- /.card-body -->
           </div>
-
-          <div class="card card-primary card-outline">
-            <div class="card-header">
-              <h5 class="card-title m-0">Featured</h5>
-            </div>
-            <div class="card-body">
-              <h6 class="card-title">Special title treatment</h6>
-
-              <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-              <a href="#" class="btn btn-primary">Go somewhere</a>
-            </div>
-          </div>
+          <!-- /.card -->
         </div>
-        <!-- /.col-md-6 -->
+        <!-- /.col -->
       </div>
       <!-- /.row -->
     </div><!-- /.container-fluid -->
@@ -84,4 +115,45 @@
   <!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
+
+<script>
+  // Quando o conteúdo do documento for carregado
+  document.addEventListener('DOMContentLoaded', function() {
+    // Selecionar todos os elementos select com a classe time-slot-select
+    var selectElements = document.querySelectorAll('.time-slot-select');
+    
+    selectElements.forEach(function(selectElement) {
+      // Iterar sobre cada opção no elemento select
+      for (var i = 0; i < selectElement.options.length; i++) {
+        var option = selectElement.options[i];
+        
+        // Check if the option is disabled, if so, skip it
+        if (option.disabled) {
+          continue;
+        }
+        
+        // Pular as opções que não são horários
+        if (option.value) {
+          var rawSlot = option.getAttribute('data-raw-slot');
+          var date = new Date(rawSlot);
+
+          // Check if date is valid before formatting
+          if (!isNaN(date.getTime())) {
+            var userFriendlyDate = date.toLocaleString('pt-BR', {
+              weekday: 'long', // "segunda-feira"
+              year: 'numeric', // 2024
+              month: 'long', // "abril"
+              day: 'numeric', // 15
+              hour: '2-digit', // 14
+              minute: '2-digit', // 00
+              hour12: false // usar formato de 24 horas
+            });
+            option.textContent = userFriendlyDate;
+          }
+        }
+      }
+    });
+  });
+</script>
+
 {% endblock body %}

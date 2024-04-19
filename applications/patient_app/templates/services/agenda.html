@@ -1,0 +1,150 @@
+{% extends 'base/index.html' %}
+{% load static %}
+
+{% block body %}
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+    <div class="container">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1 class="m-0"> Agenda do Paciente </h1>
+        </div><!-- /.col -->
+        <div class="col-sm-6">
+          <!-- Optionally, breadcrumb or other components can go here -->
+        </div><!-- /.col -->
+      </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </div>
+  <!-- /.content-header -->
+
+  <!-- Main content -->
+  <div class="content">
+    <div class="container">
+      <div class="row">
+        <!-- Calendar column -->
+        <div class="col-md-12">
+          <div class="card card-primary">
+            <div class="card-body p-0">
+              <!-- THE CALENDAR -->
+              <div id="calendar"></div>
+            </div>
+            <!-- /.card-body -->
+          </div>
+          <!-- /.card -->
+        </div>
+        <!-- /.col -->
+      </div>
+      <!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </div>
+  <!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
+
+<!-- Script for initializing the calendar -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var Calendar = FullCalendar.Calendar;
+    var calendarEl = document.getElementById('calendar');
+    // Parse the JSON events data passed from Django
+    var events = JSON.parse('{{ events|safe }}')
+
+    var calendar = new Calendar(calendarEl, {
+      locale: 'pt-br',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+      },
+      themeSystem: 'bootstrap',
+      events: events,
+      eventContent: function(arg) {
+        // Create a wrapper div
+        var containerElement = document.createElement('div');
+        containerElement.classList.add('custom-event-container');
+      
+        // Create the point element
+        var pointElement = document.createElement('span');
+        pointElement.classList.add('custom-event-point');
+      
+        // Create the title element
+        var titleElement = document.createElement('span');
+        titleElement.classList.add('custom-event-title');
+        titleElement.innerText = arg.event.title;
+      
+        // Append point and title to the container
+        containerElement.appendChild(pointElement);
+        containerElement.appendChild(titleElement);
+      
+        return { domNodes: [containerElement] };
+      },
+      eventClick: function(info) {
+        var eventObj = info.event;
+        var eventStart = new Date(eventObj.start.valueOf() - (eventObj.start.getTimezoneOffset() * 60000));
+        eventStart.setHours(eventStart.getHours() + 6); // Adjust for timezone difference explicitly
+
+        var userFriendlyDate = eventStart.toLocaleString('pt-BR', {
+          weekday: 'long',  // "segunda-feira"
+          year: 'numeric',  // 2024
+          month: 'long',    // "abril"
+          day: 'numeric',   // 15
+          hour: '2-digit',  // 14
+          minute: '2-digit',// 00
+          hour12: false     // use 24-hour format
+        });
+        $('#eventDetailTitle').text(eventObj.title);
+        $('#eventDetailBody').html(`<p>Data: ${userFriendlyDate}</p><p>${eventObj.extendedProps.description}</p>`);  // Using extendedProps to access custom properties
+        $('#eventDetailModal').modal('show');
+      },
+      editable: false,
+      droppable: false,
+    });
+
+    calendar.render();
+  });
+</script>
+
+<!-- Event Details Modal -->
+<div class="modal fade" id="eventDetailModal" tabindex="-1" aria-labelledby="eventDetailModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="eventDetailTitle">Detalhes do Agendamento</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="eventDetailBody">
+        <!-- Event details will be inserted dynamically here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<style>
+.custom-event-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-event-point {
+  height: 10px;
+  width: 10px;
+  background-color: #3498db;
+  border-radius: 50%;
+  margin-right: 5px;
+  margin-left: 5px;
+}
+
+.custom-event-title {
+  font-weight: bold;
+  text-align: center;
+}
+</style>
+{% endblock body %}

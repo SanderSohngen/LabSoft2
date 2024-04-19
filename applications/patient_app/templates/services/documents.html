@@ -1,87 +1,65 @@
 {% extends 'base/index.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block body %}
 <div class="content-wrapper">
-  <!-- Content Header (Page header) -->
   <div class="content-header">
     <div class="container">
       <div class="row mb-2">
         <div class="col-sm-6">
-          <h1 class="m-0"> Portal do Paciente </h1>
-        </div><!-- /.col -->
-        <div class="col-sm-6">
-    
-        </div><!-- /.col -->
-      </div><!-- /.row -->
-    </div><!-- /.container-fluid -->
+          <h1 class="m-0">Documentos</h1>
+        </div>
+      </div>
+    </div>
   </div>
   <!-- /.content-header -->
 
-  <!-- Main content -->
   <div class="content">
     <div class="container">
       <div class="row">
-        <div class="col-lg-6">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-
-              <p class="card-text">
-                Some quick example text to build on the card title and make up the bulk of the card's
-                content.
-              </p>
-
-              <a href="#" class="card-link">Card link</a>
-              <a href="#" class="card-link">Another link</a>
+        <!-- Loop for each document type, with counter to manage rows and columns -->
+        {% for doc_type, docs in documents.items %}
+          {% if forloop.counter0|divisibleby:2 %}
+            </div><div class="row"> <!-- Close and start new row every 2 card -->
+          {% endif %}
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Documentos {{ doc_type }}</h3>
+              </div>
+              <div class="card-body">
+                <div id="accordion-{{ doc_type|slugify }}">
+                  {% for doc in docs %}
+                  <div class="card card-primary">
+                    <div class="card-header">
+                      <h4 class="card-title w-100">
+                        <a class="d-block w-100 collapsed" data-toggle="collapse" href="#collapse-{{ doc_type|slugify }}-{{ doc.id }}">
+                          {{ doc.title|get_filename }}
+                        </a>
+                      </h4>
+                    </div>
+                    <div id="collapse-{{ doc_type|slugify }}-{{ doc.id }}" class="collapse" data-parent="#accordion-{{ doc_type|slugify }}">
+                      <div class="card-body justify-content-center align-items-center">
+                        <a href="{% url 'download_document' doc.title %}" class="btn btn-app">
+                          <i class="fas fa-download"></i> Download
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  {% empty %}
+                  <p>Não há documentos disponíveis para {{ doc_type }}.</p>
+                  {% endfor %}
+                </div>
+              </div>
             </div>
           </div>
-
-          <div class="card card-primary card-outline">
-            <div class="card-body">
-              <h5 class="card-title">Card title</h5>
-
-              <p class="card-text">
-                Some quick example text to build on the card title and make up the bulk of the card's
-                content.
-              </p>
-              <a href="#" class="card-link">Card link</a>
-              <a href="#" class="card-link">Another link</a>
-            </div>
-          </div><!-- /.card -->
-        </div>
-        <!-- /.col-md-6 -->
-        <div class="col-lg-6">
-          <div class="card">
-            <div class="card-header">
-              <h5 class="card-title m-0">Featured</h5>
-            </div>
-            <div class="card-body">
-              <h6 class="card-title">Special title treatment</h6>
-
-              <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-              <a href="#" class="btn btn-primary">Go somewhere</a>
-            </div>
-          </div>
-
-          <div class="card card-primary card-outline">
-            <div class="card-header">
-              <h5 class="card-title m-0">Featured</h5>
-            </div>
-            <div class="card-body">
-              <h6 class="card-title">Special title treatment</h6>
-
-              <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-              <a href="#" class="btn btn-primary">Go somewhere</a>
-            </div>
-          </div>
-        </div>
-        <!-- /.col-md-6 -->
+          {% if forloop.last and not forloop.counter0|divisibleby:2 %}
+            <div class="col-lg-6"></div> <!-- Add empty column if odd number of cards -->
+          {% endif %}
+        {% endfor %}
       </div>
-      <!-- /.row -->
-    </div><!-- /.container-fluid -->
+    </div>
   </div>
-  <!-- /.content -->
 </div>
-<!-- /.content-wrapper -->
 {% endblock body %}

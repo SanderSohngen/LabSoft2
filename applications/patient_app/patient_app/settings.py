@@ -26,18 +26,21 @@ SECRET_KEY = 'django-insecure-bu#ab11)mx@t!1g)gp^ia-wnf8kup4kzy736@2i!qmyr2(=u#y
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'drf_yasg',
     'patient_portal',
 ]
 
@@ -69,7 +72,14 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'patient_app.wsgi.application'
+#WSGI_APPLICATION = 'patient_app.wsgi.application'
+ASGI_APPLICATION = 'patient_app.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 
 # Database
@@ -114,14 +124,15 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
 AUTH_USER_MODEL = 'patient_portal.CustomUser'
-
-# Base directory for media files
-MEDIA_ROOT = BASE_DIR / 'media'
-
-# URL to access media files
-MEDIA_URL = '/media/'
 
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
+
+# Django REST Framework global settings
+REST_FRAMEWORK = {
+    # Default permissions are set to allow unrestricted access
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ]
+}
