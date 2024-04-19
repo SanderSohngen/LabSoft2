@@ -10,6 +10,7 @@ import json
 import boto3
 import tempfile
 import os
+from django.utils.timezone import now
 from dotenv import load_dotenv
 
 from .forms import CustomUserCreationForm, EditUserInfoForm, AppointmentForm
@@ -52,13 +53,10 @@ def dashboard(request):
 
 def appointments(request):
     professionals = get_professionals()
-    print(professionals)
     if request.method == 'POST':
         form = AppointmentForm(request.POST)
-        print(request.POST)
         if form.is_valid():
             form.save()
-            print(form.cleaned_data)
             messages.success(request, 'Appointment created successfully.')
             return HttpResponseRedirect('/appointments')
         else:
@@ -84,17 +82,27 @@ def agenda(request):
             'allDay': False  # Ensure this is false if you use specific times
         } for appointment in user_appointments
     ]
-    print(events)
     # Pass events data as JSON
     return render(request, 'services/agenda.html', {'events': json.dumps(events)})
 
 def consultations(request):
-    return render(request, 'services/consultations.html')
+    current_user = request.user
+    current_date = now().date()
+    appointments = Appointment.objects.filter(patient=current_user).order_by('time')
+    
+    for appointment in appointments:
+        # Comparing dates directly, assuming 'time' is a datetime field
+        appointment.can_access = (appointment.time.date() == current_date)
+    
+    context = {
+        'appointments': appointments,
+    }
+    
+    return render(request, 'services/consultations.html', context)
 
 def documents(request):
     # Fetch documents for the logged-in user and organize them by profession
     user_documents = Document.objects.filter(patient=request.user).order_by('profession')
-    print(user_documents)
     
     documents_by_profession = {
         'Nutricionais': [],
@@ -125,9 +133,6 @@ def documents(request):
                 'description': doc_details['description']
             })
 
-    # You can pass the documents dictionary directly to the template
-    # Or if you need to do further processing, pass the processed dictionary
-    print(documents_by_profession)
     return render(request, 'services/documents.html', {'documents': documents_by_profession})
 
 def download_document(request, title):
@@ -152,7 +157,6 @@ def download_document(request, title):
                                                     'Key': title},
                                             ExpiresIn=3600)  # Link expires in 1 hour
 
-        messages.success(request, 'Document downloaded successfully.')
         # Redirect user to the pre-signed URL for direct file download
         return redirect(response)
     except Exception as e:
@@ -168,7 +172,6 @@ def profile(request):
 def edit_profile(request):
     if request.method == 'POST':
         form = EditUserInfoForm(request.POST, instance=request.user)
-        #print("POST data:", request.POST)
         if form.is_valid():
             form.save()
             messages.success(request, 'Profile updated successfully.')
@@ -193,8 +196,10 @@ def professional_union():
     urls = [
         'http://ec2-54-152-228-191.compute-1.amazonaws.com:8000/users/time_slots/', #nutritionist
         'http://ec2-54-233-193-209.sa-east-1.compute.amazonaws.com:8000/api/users/time_slots/', #personal trainer
+        'http://ec2-15-229-233-111.sa-east-1.compute.amazonaws.com:8000/api/users/time_slots/', # psychologist
+        'http://ec2-54-207-151-203.sa-east-1.compute.amazonaws.com:8000/api/users/time_slots/', # medic
     ]
-    professional_types = ['Nutricionista', 'Personal Trainer', 'Médico', 'Psicólogo']
+    professional_types = ['Nutricionista', 'Personal Trainer', 'Psicólogo', 'Médico']
     all_professionals = []
 
     # Function to translate day numbers to day names
@@ -226,7 +231,8 @@ def get_professionals():
     url_mappings = {
         'Nutricionista': 'http://ec2-54-152-228-191.compute-1.amazonaws.com:8000/time_slots/', # Nutricionista
         'Personal Trainer': 'http://ec2-54-233-193-209.sa-east-1.compute.amazonaws.com:8000/api/time_slots/', # Personal Trainer
-        # Add other mappings as needed
+        'Psicólogo': 'http://ec2-15-229-233-111.sa-east-1.compute.amazonaws.com:8000/api/time_slots/', # Psicólogo
+        'Médico': 'http://ec2-54-207-151-203.sa-east-1.compute.amazonaws.com:8000/api/time_slots/', # Médico
     }
     # Function to correct and verify time format
     def fix_time_format(time_string):
@@ -438,87 +444,3 @@ class CustomPatientViewSet(ViewSet):
         else:
             # Handle validation errors
             return Response(serializer.errors, status=400)
-
-
-# 1)
-# get /professional/{profession}/{professional_id}/patients
-# [
-#   {
-#     "id": 1,
-#     "name": "Alice"
-#   },
-#   {
-#     "id": 2,
-#     "name": "Breno"
-#   }
-# ]
-
-
-# 2)
-# get /professional/{profession}/{professional_id}/appointments
-# [
-#   {
-#     "name": "Alice",
-#     "datetime": "2024-04-12 09:00:00"
-#   },
-#   {
-#     "name": "Breno",
-#     "datetime": "2024-04-13 10:00:00"
-#   }
-# ]
-
-
-# 3) 
-# get /patient/{patient_id}/details
-# {
-#   "id": 1,
-#   "name": "Alice",
-#   "age": 29,
-#   "weight": 60, 
-#   "height": 165, 
-#   "gender": "Female",
-#   "dietaryRestrictions": "None",
-#   "notes": [
-#     {
-#       "profession": "personal trainer",
-#       "content": "Needs follow-up"
-#     },
-#     {
-#       "profession": "psicologist",
-#       "content": "Medication adjusted"
-#     }
-#   ]
-# }
-
-# 4)
-# get /patient/{patient_id}/{profession}/{professional_id}/documents
-# [
-#   {
-#     "documentId": "file123",
-#     "profession": "nutritionist",
-#     "url": "https://s3.example.com/bucket/file123",
-#     "uploaded": "2024-03-01"
-#   },
-#   {
-#     "documentId": "file456",
-#     "profession": "personal trainer",
-#     "url": "https://s3.example.com/bucket/file456",
-#     "uploaded": "2024-03-02"
-#   }
-# ]
-
-# 5)
-# post /patient/{patient_id}/{profession}/{professional_id}/observation
-# {
-#   "observation": "Patient shows signs of improvement after treatment."
-# }
-
-
-# 6)
-# post /patient/{patient_id}/{profession}/{professional_id}/documents
-# {
-#   "metadata": {
-#     "documentId": "file789",
-#     "url": "https://s3.example.com/bucket/file789",
-#   }
-# }

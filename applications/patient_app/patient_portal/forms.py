@@ -106,7 +106,6 @@ class AppointmentForm(forms.ModelForm):
     def clean_time_slot(self):
         time_slot = self.cleaned_data.get('time_slot')
         if time_slot:
-            # Convert to your preferred time zone if necessary, or just return the parsed time_slot
             return time_slot
         else:
             raise forms.ValidationError("This field is required.")

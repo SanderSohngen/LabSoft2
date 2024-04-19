@@ -76,7 +76,7 @@
                                     {% for slot in professional.time_slots %}
                                       <option value="{{ slot }}" data-raw-slot="{{ slot }}">{{ slot }}</option>
                                     {% empty %}
-                                      <option disabled>Não há horários disponíveis.</option>
+                                      <option value="" disabled>Não há horários disponíveis.</option>
                                     {% endfor %}
                                   </select>
                                 </div>
@@ -127,21 +127,29 @@
       for (var i = 0; i < selectElement.options.length; i++) {
         var option = selectElement.options[i];
         
+        // Check if the option is disabled, if so, skip it
+        if (option.disabled) {
+          continue;
+        }
+        
         // Pular as opções que não são horários
         if (option.value) {
           var rawSlot = option.getAttribute('data-raw-slot');
           var date = new Date(rawSlot);
-          //date.setHours(date.getHours() + 3);
-          var userFriendlyDate = date.toLocaleString('pt-BR', {
-            weekday: 'long', // "segunda-feira"
-            year: 'numeric', // 2024
-            month: 'long', // "abril"
-            day: 'numeric', // 15
-            hour: '2-digit', // 14
-            minute: '2-digit', // 00
-            hour12: false // usar formato de 24 horas
-          });
-          option.textContent = userFriendlyDate;
+
+          // Check if date is valid before formatting
+          if (!isNaN(date.getTime())) {
+            var userFriendlyDate = date.toLocaleString('pt-BR', {
+              weekday: 'long', // "segunda-feira"
+              year: 'numeric', // 2024
+              month: 'long', // "abril"
+              day: 'numeric', // 15
+              hour: '2-digit', // 14
+              minute: '2-digit', // 00
+              hour12: false // usar formato de 24 horas
+            });
+            option.textContent = userFriendlyDate;
+          }
         }
       }
     });
