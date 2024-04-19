@@ -81,38 +81,7 @@ VitaLink
 - **Patient Evaluation and Training Plan** 📈
   - Design training programs based on detailed assessments.
 
-## 🔧 Installation
-
-(Provide steps for installing your platform here.)
-
 ## 📖 Usage
 
-(Describe how to use the platform, with examples of common use cases.)
+Patient Portal: http://ec2-52-67-134-153.sa-east-1.compute.amazonaws.com:8000
 
-## 📦 Dependencies
-
-(List any libraries, frameworks, or other tools that VitaLink depends on.)
-
-## ⚙️ Configuration
-
-(Explain how to configure VitaLink, including any environment variables or configuration files.)
-
-## 📚 Documentation
-
-(Provide links to the full documentation, if available.)
-
-## 🌟 Examples
-
-(Show some examples of how to use the platform for various tasks.)
-
-## 🛠 Troubleshooting
-
-(Outline common issues that users might encounter and how to solve them.)
-
-## 👥 Contributors
-
-(List of people who have contributed to the project.)
-
-## 📄 License
-
-(Specify the license under which VitaLink is released.)
