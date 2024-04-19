@@ -11,13 +11,6 @@
 - [Physical Trainer Features](#-physical-trainer-features)
 - [Installation](#-installation)
 - [Usage](#-usage)
-- [Dependencies](#-dependencies)
-- [Configuration](#-configuration)
-- [Documentation](#-documentation)
-- [Examples](#-examples)
-- [Troubleshooting](#-troubleshooting)
-- [Contributors](#-contributors)
-- [License](#-license)
 
 ## 🌟 Introduction
 
