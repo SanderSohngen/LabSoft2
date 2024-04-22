@@ -25,18 +25,26 @@ SECRET_KEY = 'django-insecure-rt_o6-344)bm^tlpxi%v#8fwg6=us*=&w*=nk4807%a@*%+ms2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    # 'daphne',
+    'users.apps.UsersConfig',
+    'crispy_forms',
+    'crispy_bootstrap4',
+    'trainer_portal.apps.TrainerPortalConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'drf_yasg',
+    # 'trainer_portal'
 ]
 
 MIDDLEWARE = [
@@ -80,6 +88,11 @@ DATABASES = {
     }
 }
 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -121,3 +134,22 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+LOGIN_REDIRECT_URL = 'trainer-portal-agenda'
+
+# Django REST Framework global settings
+REST_FRAMEWORK = {
+    # Default permissions are set to allow unrestricted access
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ]
+}
+
+# Configure static and media file storage using S3
+AWS_ACCESS_KEY_ID = 'AKIAW3MD7BEXWTROPBF3'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'vitalink'
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
