@@ -77,4 +77,6 @@ VitaLink
 ## 📖 Usage
 
 Patient Portal: http://ec2-52-67-134-153.sa-east-1.compute.amazonaws.com:8000
-
+Doctor Portal: http://ec2-54-207-151-203.sa-east-1.compute.amazonaws.com:8000/ 
+Psychologist Portal: http://ec2-15-229-233-111.sa-east-1.compute.amazonaws.com:8000/
+Trainer Portal: http://ec2-54-233-193-209.sa-east-1.compute.amazonaws.com:8000
