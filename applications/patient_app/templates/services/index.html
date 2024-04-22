@@ -1,0 +1,18 @@
+{% extends 'base/index.html' %}
+{% load static %}
+
+{% block body %}
+<div class="content-wrapper" style="display: flex; align-items: center; justify-content: center; height: 75vh;">
+  <div class="container">
+    <section style="text-align: center;">
+      <img src="{% static 'dist/img/vitalinklogo.png' %}" alt="Imagem"
+           style="max-width: 100%; height: auto; width: 400px; height: 400px;">
+      <h2 style="margin-top: 20px;">
+        <span style="font-weight: bold; color: #22577A;">Conectando</span>
+        <span style="font-weight: bold; color: #80ED99;"> Saúde</span> e
+        <span style="font-weight: bold; color: #22577A;"> Tecnologia</span>
+      </h2>
+    </section>
+  </div>
+</div>
+{% endblock body %}

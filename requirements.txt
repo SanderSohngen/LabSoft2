@@ -1,1 +1,10 @@
 django
+djangorestframework
+drf-yasg
+requests
+boto3
+python-dotenv
+channels
+channels-redis
+asyncio
+websockets

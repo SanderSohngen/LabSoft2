@@ -1,2 +1,4 @@
 /env/
-*.pyc
+/.env/
+/applications/patient_app/patient_portal/.env
+
